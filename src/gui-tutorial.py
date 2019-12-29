@@ -5,25 +5,45 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.checkbox import CheckBox
+from kivy.uix.button import Button
 
 from kivy.uix.filechooser import FileChooserListView
+
+import segmentModel
 
 #from kivy.uix.floatlayout import FloatLayout
 #from kivy.factory import Factory
 #from kivy.properties import ObjectProperty
 #from kivy.uix.popup import Popup
 
-class mainLayout(GridLayout):
+from pydub import AudioSegment
+from pydub.playback import play
+mp3_version = AudioSegment.from_mp3("../audio/08 Rasputin.mp3")
+SM = segmentModel.songMetadata('ahuba')
+SM.importData('testy.xml')
+playlist = [0] * len(SM.segments)
 
-    def __init__(self, rows, **kwargs):
-        super(mainLayout, self).__init__(**kwargs)
-        self.rows = rows
-        for i in range(0,rows):
+class dancePartLayout(GridLayout):
 
-            self.add_widget(Label(text='test {}'.format(i)))
+    def __init__(self, segments, **kwargs):
+        super(dancePartLayout, self).__init__(**kwargs)
+        self.rows = len(segments)
+        for i in range(0,self.rows):
+
+            self.add_widget(Label(text=segments[i].description))
             CB = CheckBox()
+            CB.id = 'chk_{}'.format(i)
             self.add_widget(CB)
             CB.bind(active=on_checkbox_active)
+
+class parts_n_playLayout(BoxLayout):
+    def __init__(self, segments, **kwargs):
+        super(parts_n_playLayout, self).__init__(**kwargs)
+        self.orientation = 'vertical'
+        self.add_widget(dancePartLayout(SM.segments))
+        PlayButton = Button(text='Play')
+        PlayButton.bind(on_press = on_pressed_play)
+        self.add_widget(PlayButton)
 
         #self.add_widget(Label(text='test 1'))
         #self.add_widget(Label(text='test 1'))
@@ -45,7 +65,11 @@ class MacroLayout(BoxLayout):
         self.filechooser.layout.ids.scrollview.height = 100.0
         self.filechooser.path = "C:\\Users\\Filip\\"
         self.add_widget(self.filechooser)
-        self.add_widget(mainLayout(12))
+
+        #SM = segmentModel.songMetadata('ahuba')
+        #SM.importData('testy.xml')
+        self.add_widget(parts_n_playLayout(SM.segments))
+
 
 class ChoreographyCreator(App):
 
@@ -53,10 +77,26 @@ class ChoreographyCreator(App):
         return MacroLayout()#mainLayout(13)
 
 def on_checkbox_active(checkbox, value):
+    index = int(checkbox.id.strip('chk_'))
+    print(index)
+    print('playlist size: {}'.format(len(playlist)))
     if value:
-        print('The checkbox', checkbox, 'is active')
+        print('The checkbox', checkbox.id, 'is active')
+        playlist[index] = 1
     else:
-        print('The checkbox', checkbox, 'is inactive')
+        print('The checkbox', checkbox.id, 'is inactive')
+        playlist[index] = 0
+
+def on_pressed_play(button):
+    music = 0
+    active_indices = [i for i, e in enumerate(playlist) if e != 0]
+    for i in active_indices:
+        start = SM.segments[i].start
+        end = SM.segments[i].end
+        music = music + mp3_version[start:end]
+
+    play(music)
+
 
 if __name__ == '__main__':
     ChoreographyCreator().run()

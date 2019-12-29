@@ -16,7 +16,7 @@ class segment:
         endElement = ET.SubElement(songSegment, "end")
         endElement.text = str(self.end)
 
-    def __init__(self, description = 'Not decided yet', start, end):
+    def __init__(self, start, end, description = 'Not decided yet'):
         self.description = description
         self.start = start
         self.end = end
@@ -24,26 +24,31 @@ class segment:
 
 class songMetadata:
 
-    def export(self, fileName):
-        name = ET.SubElement(self.xmlElement, "name")
-        name.text = self.name
+    def exportData(self, fileName):
+        self.xmlElement.set('name', self.name)
         for segment in self.segments:
             segment.encode(self.xmlElement)
 
         data = BeautifulSoup(ET.tostring(self.xmlElement, encoding='utf-8'), 'xml')
         dataString = data.prettify()
-        #pdb.set_trace()
         dataString = prettierfier.prettify_xml(dataString)
         fileName = '{}.xml'.format(fileName)
 
         with open(fileName, 'w') as f:
-            #f.write('<?xml version="1.0" encoding="UTF-8" ?>\n<!DOCTYPE xmeml>')
-            #ElementTree.ElementTree(tree).write(f, 'utf-8')
             f.write(dataString)
 
-    def add_segment(self, description, start, end):
-        self.segments.append(segment())
+    def importData(self, fileName):
+        tree = ET.parse(fileName)
+        self.xmlElement = tree.getroot()
+        self.name = self.xmlElement.get('name')
+        for seg in self.xmlElement.findall('songSegment'):
+            description = seg.find('description').text
+            start = int(seg.find('start').text)
+            end = int(seg.find('end').text)
+            self.segments.append(segment(start, end, description))
 
+    def add_segment(self, start, end,  description = 'Not decided yet'):
+        self.segments.append(segment(start, end,  description))
 
     def __init__(self,name):
         self.name = name

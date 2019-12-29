@@ -1,20 +1,15 @@
 from pydub import AudioSegment
 from pydub.playback import play
 import segmentModel
-import pdb
-import xml.etree.ElementTree as ET
-
 
 SM = segmentModel.songMetadata('song name here')
-SM.add_segment('ahuba', 0, 200)
-SM.export('testy')
-
-pdb.set_trace()
+SM.importData('testy.xml')
 
 mp3_version = AudioSegment.from_mp3("../audio/08 Rasputin.mp3")
-ten_seconds = 5 * 1000
-first_10_seconds = mp3_version[:ten_seconds]
+first_10_seconds = mp3_version[SM.segments[0].start:SM.segments[0].end]
+secondPart = mp3_version[SM.segments[1].start:SM.segments[1].end]
 
 # Need interupt
 #while(True):
-#    play(first_10_seconds)
+print("playing")
+play(first_10_seconds + secondPart)
