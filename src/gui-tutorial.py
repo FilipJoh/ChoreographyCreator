@@ -9,7 +9,10 @@ from kivy.uix.button import Button
 
 from kivy.uix.filechooser import FileChooserListView
 
+from kivy.core.audio import SoundLoader
+
 import segmentModel
+import pdb
 
 #from kivy.uix.floatlayout import FloatLayout
 #from kivy.factory import Factory
@@ -17,11 +20,13 @@ import segmentModel
 #from kivy.uix.popup import Popup
 
 from pydub import AudioSegment
-from pydub.playback import play
+import pydub.playback
 mp3_version = AudioSegment.from_mp3("../audio/08 Rasputin.mp3")
+sound = SoundLoader.load("../audio/08 Rasputin.mp3")
 SM = segmentModel.songMetadata('ahuba')
 SM.importData('testy.xml')
 playlist = [0] * len(SM.segments)
+#pdb.set_trace()
 
 class dancePartLayout(GridLayout):
 
@@ -88,14 +93,28 @@ def on_checkbox_active(checkbox, value):
         playlist[index] = 0
 
 def on_pressed_play(button):
+
+    global sound
+    print("state: " + button.state)
     music = 0
     active_indices = [i for i, e in enumerate(playlist) if e != 0]
-    for i in active_indices:
-        start = SM.segments[i].start
-        end = SM.segments[i].end
-        music = music + mp3_version[start:end]
+    if sound.state == 'stop' and sum(active_indices) > 0:
 
-    play(music)
+        for i in active_indices:
+            start = SM.segments[i].start
+            end = SM.segments[i].end
+            music = music + mp3_version[start:end]
+        filePath = "../audio/intermed.mp3"
+        thefile = music.export(filePath, format="mp3")
+        thefile.seek(0)
+        sound = SoundLoader.load(thefile.name)
+        button.text = 'stop'
+        sound.play()
+    else:
+        button.text = 'play'
+        sound.stop()
+
+    #pydub.playback._play_with_pyaudio(music)
 
 
 if __name__ == '__main__':
