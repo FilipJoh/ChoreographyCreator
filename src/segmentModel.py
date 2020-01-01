@@ -47,6 +47,9 @@ class songMetadata:
             end = int(seg.find('end').text)
             self.segments.append(segment(start, end, description))
 
+    def clearData(self):
+        self.segments.clear()
+
     def add_segment(self, start, end,  description = 'Not decided yet'):
         self.segments.append(segment(start, end,  description))
 

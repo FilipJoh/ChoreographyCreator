@@ -1,5 +1,8 @@
 import kivy
 
+from kivy.config import Config
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
@@ -24,12 +27,11 @@ import pydub.playback
 mp3_version = AudioSegment.from_mp3("../audio/08 Rasputin.mp3")
 sound = SoundLoader.load("../audio/08 Rasputin.mp3")
 SM = segmentModel.songMetadata('ahuba')
-SM.importData('testy.xml')
+SM.importData('Rasputin.xml')
 playlist = [0] * len(SM.segments)
 #pdb.set_trace()
 
 class dancePartLayout(GridLayout):
-
     def __init__(self, segments, **kwargs):
         super(dancePartLayout, self).__init__(**kwargs)
         self.rows = len(segments)
@@ -45,22 +47,21 @@ class parts_n_playLayout(BoxLayout):
     def __init__(self, segments, **kwargs):
         super(parts_n_playLayout, self).__init__(**kwargs)
         self.orientation = 'vertical'
+        self.id = 'player'
+        self.add_widget(Label(text = SM.name, size_hint = (1.0,0.2)))
         self.add_widget(dancePartLayout(SM.segments))
-        PlayButton = Button(text='Play')
+        PlayButton = Button(text='Play', size_hint=(1.0,.2))
         PlayButton.bind(on_press = on_pressed_play)
         self.add_widget(PlayButton)
 
         #self.add_widget(Label(text='test 1'))
         #self.add_widget(Label(text='test 1'))
 
-
-
-class MacroLayout(BoxLayout):
-    def __init__(self, **kwargs):
-        super(MacroLayout, self).__init__(**kwargs)
-        self.orientation = 'horizontal'
-
-        #self.add_widget(Label(text='AHUBA'))
+class FileChooserLayout(BoxLayout):
+    def __init__(self,**kwargs):
+        super(FileChooserLayout, self).__init__(**kwargs)
+        self.orientation = 'vertical'
+        self.add_widget(Label(text='Chose a file', size_hint=(1.0,0.2)))
 
         self.filechooser = FileChooserListView()
         self.filechooser.layout.ids.scrollview.scroll_type = ['content', 'bars']
@@ -68,13 +69,30 @@ class MacroLayout(BoxLayout):
         #self.filechooser.layout.ids.scrollview.scroll_y = 3.0
         self.filechooser.layout.ids.scrollview.bar_width = 10.0
         self.filechooser.layout.ids.scrollview.height = 100.0
-        self.filechooser.path = "C:\\Users\\Filip\\"
+        self.filechooser.path = 'C:\\Users\\Filip\\Projects\\Choreography-creator\\src'
+        self.filechooser.filters = ['*.xml']
         self.add_widget(self.filechooser)
+        self.confirmButton = Button(text='Load', size_hint=(1.0,0.2))
+        self.confirmButton.bind(on_press = self.on_pressed_load)
+        self.add_widget(self.confirmButton)
 
-        #SM = segmentModel.songMetadata('ahuba')
-        #SM.importData('testy.xml')
+    def on_pressed_load(self,button):
+        print('Loading..')
+        if len(self.filechooser.selection) > 0:
+            SM.clearData()
+            SM.importData(self.filechooser.selection[0])
+        mainApp = App.get_running_app()
+        widget_to_remove = mainApp.root.children[0] #= parts_n_playLayout(SM.segments)
+        widget_to_remove.parent.remove_widget(widget_to_remove)
+        mainApp.root.add_widget(parts_n_playLayout(SM.segments))
+        #pdb.set_trace()
+
+class MacroLayout(BoxLayout):
+    def __init__(self, **kwargs):
+        super(MacroLayout, self).__init__(**kwargs)
+        self.orientation = 'horizontal'
+        self.add_widget(FileChooserLayout())
         self.add_widget(parts_n_playLayout(SM.segments))
-
 
 class ChoreographyCreator(App):
 
@@ -96,9 +114,12 @@ def on_pressed_play(button):
 
     global sound
     print("state: " + button.state)
+    for i in range(len(playlist)):
+        print("state of item {} in playlist : {}".format(i,playlist[i]))
     music = 0
     active_indices = [i for i, e in enumerate(playlist) if e != 0]
-    if sound.state == 'stop' and sum(active_indices) > 0:
+    #pdb.set_trace()
+    if sound.state == 'stop' and len(active_indices) > 0:
 
         for i in active_indices:
             start = SM.segments[i].start
