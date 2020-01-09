@@ -17,6 +17,8 @@ from kivy.core.audio import SoundLoader
 import segmentModel
 import pdb
 
+import os
+
 #from kivy.uix.floatlayout import FloatLayout
 #from kivy.factory import Factory
 #from kivy.properties import ObjectProperty
@@ -126,6 +128,8 @@ def on_pressed_play(button):
             end = SM.segments[i].end
             music = music + mp3_version[start:end]
         filePath = "../audio/intermed.mp3"
+        if os.path.exists(filePath):
+            os.remove(filePath)
         thefile = music.export(filePath, format="mp3")
         thefile.seek(0)
         sound = SoundLoader.load(thefile.name)
