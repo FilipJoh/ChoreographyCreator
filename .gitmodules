@@ -1,3 +1,6 @@
 [submodule "src/custom_widgets"]
 	path = src/custom_widgets
 	url = https://gist.github.com/f651f2b97c8ad237684ce661645b5f75.git
+[submodule "src/AudioViz"]
+	path = src/AudioViz
+	url = https://github.com/FilipJoh/AudioViz.git

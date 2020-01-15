@@ -80,7 +80,7 @@ class parts_n_playLayout(BoxLayout):
             sound = SoundLoader.load(thefile.name)
             button.text = 'stop'
             self.waveForm = ContainedWaveform.ScrollableSoundVizualizer(mp3_version, sound)
-            self.parent.add_widget(self.waveForm)
+            self.parent.add_widget(self.)
             sound.play()
         else:
             button.text = 'play'
