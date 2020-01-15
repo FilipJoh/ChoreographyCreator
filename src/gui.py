@@ -9,6 +9,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.button import Button
+from custom_widgets import ContainedWaveform
 
 from kivy.uix.filechooser import FileChooserListView
 
@@ -53,11 +54,39 @@ class parts_n_playLayout(BoxLayout):
         self.add_widget(Label(text = SM.name, size_hint = (1.0,0.2)))
         self.add_widget(dancePartLayout(SM.segments))
         PlayButton = Button(text='Play', size_hint=(1.0,.2))
-        PlayButton.bind(on_press = on_pressed_play)
+        PlayButton.bind(on_press = self.on_pressed_play)
         self.add_widget(PlayButton)
 
-        #self.add_widget(Label(text='test 1'))
-        #self.add_widget(Label(text='test 1'))
+    def on_pressed_play(self,button):
+
+        global sound
+        print("state: " + button.state)
+        for i in range(len(playlist)):
+            print("state of item {} in playlist : {}".format(i,playlist[i]))
+        music = 0
+        active_indices = [i for i, e in enumerate(playlist) if e != 0]
+        #pdb.set_trace()
+        if sound.state == 'stop' and len(active_indices) > 0:
+
+            for i in active_indices:
+                start = SM.segments[i].start
+                end = SM.segments[i].end
+                music = music + mp3_version[start:end]
+            filePath = "../audio/intermed.mp3"
+            if os.path.exists(filePath):
+                os.remove(filePath)
+            thefile = music.export(filePath, format="mp3")
+            thefile.seek(0)
+            sound = SoundLoader.load(thefile.name)
+            button.text = 'stop'
+            self.waveForm = ContainedWaveform.ScrollableSoundVizualizer(mp3_version, sound)
+            self.parent.add_widget(self.waveForm)
+            sound.play()
+        else:
+            button.text = 'play'
+            sound.stop()
+            self.parent.remove_widget(self.waveForm)
+
 
 class FileChooserLayout(BoxLayout):
     def __init__(self,**kwargs):
@@ -90,16 +119,18 @@ class FileChooserLayout(BoxLayout):
         #pdb.set_trace()
 
 class MacroLayout(BoxLayout):
-    def __init__(self, **kwargs):
+    def __init__(self, sound, **kwargs):
         super(MacroLayout, self).__init__(**kwargs)
         self.orientation = 'horizontal'
         self.add_widget(FileChooserLayout())
         self.add_widget(parts_n_playLayout(SM.segments))
 
+
 class ChoreographyCreator(App):
 
     def build(self):
-        return MacroLayout()#mainLayout(13)
+        self.sound = sound
+        return MacroLayout(self.sound)#mainLayout(13)
 
 def on_checkbox_active(checkbox, value):
     index = int(checkbox.id.strip('chk_'))
@@ -112,7 +143,7 @@ def on_checkbox_active(checkbox, value):
         print('The checkbox', checkbox.id, 'is inactive')
         playlist[index] = 0
 
-def on_pressed_play(button):
+"""def on_pressed_play(button):
 
     global sound
     print("state: " + button.state)
@@ -137,7 +168,7 @@ def on_pressed_play(button):
         sound.play()
     else:
         button.text = 'play'
-        sound.stop()
+        sound.stop()"""
 
     #pydub.playback._play_with_pyaudio(music)
 
