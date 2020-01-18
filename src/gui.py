@@ -9,6 +9,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.button import Button
+from kivy.uix.screenmanager import ScreenManager, Screen
 from AudioViz import ContainedWaveform
 
 from kivy.uix.filechooser import FileChooserListView
@@ -20,13 +21,8 @@ import pdb
 
 import os
 
-#from kivy.uix.floatlayout import FloatLayout
-#from kivy.factory import Factory
-#from kivy.properties import ObjectProperty
-#from kivy.uix.popup import Popup
-
 from pydub import AudioSegment
-import pydub.playback
+
 mp3_version = AudioSegment.from_mp3("../audio/08 Rasputin.mp3")
 sound = SoundLoader.load("../audio/08 Rasputin.mp3")
 SM = segmentModel.songMetadata('ahuba')
@@ -48,6 +44,7 @@ class dancePartLayout(GridLayout):
 
 class parts_n_playLayout(BoxLayout):
     def __init__(self, segments, **kwargs):
+        self.sound = sound
         super(parts_n_playLayout, self).__init__(**kwargs)
         self.orientation = 'vertical'
         self.id = 'player'
@@ -56,17 +53,18 @@ class parts_n_playLayout(BoxLayout):
         PlayButton = Button(text='Play', size_hint=(1.0,.2))
         PlayButton.bind(on_press = self.on_pressed_play)
         self.add_widget(PlayButton)
+        self.sound.bind(on_stop = self.on_stopped)
 
-    def on_pressed_play(self,button):
-
-        global sound
+    def on_pressed_play(self, button):
+        #pdb.set_trace()
+        #global sound
         print("state: " + button.state)
         for i in range(len(playlist)):
             print("state of item {} in playlist : {}".format(i,playlist[i]))
         music = 0
         active_indices = [i for i, e in enumerate(playlist) if e != 0]
         #pdb.set_trace()
-        if sound.state == 'stop' and len(active_indices) > 0:
+        if self.sound.state == 'stop' and len(active_indices) > 0:
 
             for i in active_indices:
                 start = SM.segments[i].start
@@ -77,16 +75,22 @@ class parts_n_playLayout(BoxLayout):
                 os.remove(filePath)
             thefile = music.export(filePath, format="mp3")
             thefile.seek(0)
-            sound = SoundLoader.load(thefile.name)
+            self.sound = SoundLoader.load(thefile.name) # redefinied need new bind
+            self.sound.bind(on_stop = self.on_stopped)
             button.text = 'stop'
-            self.waveForm = ContainedWaveform.ScrollableSoundVizualizer(mp3_version, sound)
+            self.waveForm = ContainedWaveform.ScrollableSoundVizualizer(music, self.sound)
             self.parent.add_widget(self.waveForm)
-            sound.play()
+            #pdb.set_trace()
+            self.sound.play()
         else:
             button.text = 'play'
-            sound.stop()
+            self.sound.stop()
             self.parent.remove_widget(self.waveForm)
 
+    def on_stopped(self, sound):
+        #pdb.set_trace()
+        self.parent.remove_widget(self.waveForm)
+        return False
 
 class FileChooserLayout(BoxLayout):
     def __init__(self,**kwargs):
@@ -113,24 +117,56 @@ class FileChooserLayout(BoxLayout):
             SM.clearData()
             SM.importData(self.filechooser.selection[0])
         mainApp = App.get_running_app()
-        widget_to_remove = mainApp.root.children[0] #= parts_n_playLayout(SM.segments)
-        widget_to_remove.parent.remove_widget(widget_to_remove)
-        mainApp.root.add_widget(parts_n_playLayout(SM.segments))
-        #pdb.set_trace()
+
+        mainScreen = mainApp.root.get_screen('Main Screen')
+
+        widget_to_remove = mainScreen.layout.children[0] #= parts_n_playLayout(SM.segments)
+        mainScreen.layout.remove_widget(widget_to_remove)
+        mainScreen.layout.add_widget(parts_n_playLayout(SM.segments))
 
 class MacroLayout(BoxLayout):
     def __init__(self, sound, **kwargs):
         super(MacroLayout, self).__init__(**kwargs)
         self.orientation = 'horizontal'
-        self.add_widget(FileChooserLayout())
+        #self.add_widget(FileChooserLayout())
         self.add_widget(parts_n_playLayout(SM.segments))
 
+class FileChooserScreen(Screen):
+    def __init__(self, **kwargs):
+        super(FileChooserScreen, self).__init__(**kwargs)
+        self.add_widget(FileChooserLayout())
+
+        backButton = Button(text='Back', size_hint=(0.5,0.1))
+        backButton.bind(on_press = self.to_back)
+        self.add_widget(backButton)
+
+    def to_back(self, button):
+        app = App.get_running_app()
+        app.root.current = 'Main Screen'
+
+class MainScreen(Screen):
+    def __init__(self, sound, **kwargs):
+        super(MainScreen, self).__init__(**kwargs)
+        self.layout = MacroLayout(sound)
+        self.add_widget(self.layout)
+
+        loaderButton = Button(text='Settings', size_hint=(0.5,0.1))
+        loaderButton.bind(on_press = self.to_loading)
+        self.add_widget(loaderButton)
+
+    def to_loading(self, button):
+        app = App.get_running_app()
+        app.root.current = 'Load audio metadata'
 
 class ChoreographyCreator(App):
 
     def build(self):
         self.sound = sound
-        return MacroLayout(self.sound)#mainLayout(13)
+        self.sm = ScreenManager()
+        self.sm.add_widget(MainScreen(self.sound,name='Main Screen'))
+        self.sm.add_widget(FileChooserScreen(name='Load audio metadata'))
+        return self.sm
+        #return MacroLayout(self.sound)#mainLayout(13)
 
 def on_checkbox_active(checkbox, value):
     index = int(checkbox.id.strip('chk_'))
