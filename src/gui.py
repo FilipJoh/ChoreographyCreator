@@ -9,7 +9,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.button import Button
-from custom_widgets import ContainedWaveform
+from AudioViz import ContainedWaveform
 
 from kivy.uix.filechooser import FileChooserListView
 
@@ -80,7 +80,7 @@ class parts_n_playLayout(BoxLayout):
             sound = SoundLoader.load(thefile.name)
             button.text = 'stop'
             self.waveForm = ContainedWaveform.ScrollableSoundVizualizer(mp3_version, sound)
-            self.parent.add_widget(self.)
+            self.parent.add_widget(self.waveForm)
             sound.play()
         else:
             button.text = 'play'
