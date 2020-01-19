@@ -4,3 +4,4 @@ lxml==4.4.2
 kivy==1.11.1
 ffpyplayer==4.3.0
 pydub==0.23.1
+numpy==1.12.1
