@@ -4,6 +4,7 @@ from kivy.config import Config
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 from kivy.app import App
+from kivy.lang import Builder
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -52,7 +53,7 @@ class dancePartLayout(GridLayout):
             playlist[index] = 0
 
 class parts_n_playLayout(BoxLayout):
-    def __init__(self, segments, **kwargs):
+    def __init__(self, **kwargs):
         self.sound = sound
         super(parts_n_playLayout, self).__init__(**kwargs)
         self.orientation = 'vertical'
@@ -92,12 +93,12 @@ class parts_n_playLayout(BoxLayout):
             button.text = 'play'
             self.sound.stop()
             app = App.get_running_app()
-            app.root.current = 'Main Screen'
+            app.root.current = 'DanceSelector'
             app.sm.remove_widget(app.root.get_screen('player'))
 
     def on_stopped(self, sound):
         app = App.get_running_app()
-        app.root.current = 'Main Screen'
+        app.root.current = 'DanceSelector'
         app.sm.remove_widget(app.root.get_screen('player'))
         self.PlayButton.text = 'play'
         return False
@@ -132,22 +133,23 @@ class FileChooserLayout(BoxLayout):
             SM.importData(self.filechooser.selection[0])
         mainApp = App.get_running_app()
 
-        mainScreen = mainApp.root.get_screen('Main Screen')
-        #pdb.set_trace()
+        #if (mainApp.root.has_screen('DanceSelector')):
+        mainScreen = mainApp.root.get_screen('DanceSelector')
         widget_to_remove = mainScreen.layout.parts#getattr(mainScreen.layout.ids, 'playlist')#children[0] #= parts_n_playLayout(SM.segments)
         mainScreen.layout.remove_widget(widget_to_remove)
-        mainScreen.layout.parts = parts_n_playLayout(SM.segments)
+        mainScreen.layout.parts = parts_n_playLayout()
         mainScreen.layout.add_widget(mainScreen.layout.parts, 1)
+        mainApp.root.current = 'DanceSelector'
 
     def to_back(self, button):
         app = App.get_running_app()
-        app.root.current = 'Main Screen'
+        app.root.current = 'menu'
 
 class MacroLayout(BoxLayout):
     def __init__(self, sound, **kwargs):
         super(MacroLayout, self).__init__(**kwargs)
         self.orientation = 'vertical'
-        self.parts = parts_n_playLayout(SM.segments,id='playlist')
+        self.parts = Label(text='nuthin here yet')#parts_n_playLayout(SM.segments,id='playlist')
         self.add_widget(self.parts)
         loaderButton = Button(text='Load a file', size_hint=(1.0,0.07))
         loaderButton.bind(on_press = self.to_loading)
@@ -175,12 +177,19 @@ class PlaybackScreen(Screen):
         self.waveform = ContainedWaveform.ScrollableSoundVizualizer(music, sound)
         self.add_widget(self.waveform)
 
+class MainScreen(Screen):
+    pass
+
+
 class ChoreographyCreator(App):
 
     def build(self):
+        test = Builder.load_file('kvy-files/mainScreen.kv')
+        #pdb.set_trace()
         self.sound = sound
         self.sm = ScreenManager()
-        self.sm.add_widget(PlayerScreen(self.sound,name='Main Screen'))
+        self.sm.add_widget(MainScreen(name = 'menu'))
+        self.sm.add_widget(PlayerScreen(self.sound,name='DanceSelector'))
         self.sm.add_widget(FileChooserScreen(name='Load audio metadata'))
         return self.sm
 

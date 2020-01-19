@@ -1,0 +1,13 @@
+<MainScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Welcome to Choreography Creator'
+        Button:
+            text: 'Load audio metadata'
+            on_press: root.manager.current = 'Load audio metadata'
+        Button:
+            text: 'Create New Choreography'
+        Button:
+            text: 'Quit'
+            on_press: quit()

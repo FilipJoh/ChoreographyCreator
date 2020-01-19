@@ -8,7 +8,6 @@ class segment:
 
     def encode(self, parentElement):
         songSegment = ET.SubElement(parentElement, "songSegment")
-        #songSegment.text = self.description
         descriptionElement = ET.SubElement(songSegment, "description")
         descriptionElement.text = self.description
         startElement = ET.SubElement(songSegment, "start")
@@ -26,6 +25,7 @@ class songMetadata:
 
     def exportData(self, fileName):
         self.xmlElement.set('name', self.name)
+        self.xmlElement.set('audioPath', self.audioPath)
         for segment in self.segments:
             segment.encode(self.xmlElement)
 
@@ -41,6 +41,7 @@ class songMetadata:
         tree = ET.parse(fileName)
         self.xmlElement = tree.getroot()
         self.name = self.xmlElement.get('name')
+        self.audioPath = self.xmlElement.get('audioPath')
         for seg in self.xmlElement.findall('songSegment'):
             description = seg.find('description').text
             start = int(seg.find('start').text)
@@ -55,6 +56,7 @@ class songMetadata:
 
     def __init__(self,name):
         self.name = name
+        self.audioPath = "NaN"
         self.segments = []
         self.xmlElement = ET.Element('song')
         #self.xmlElement.text = self.name
