@@ -11,3 +11,62 @@
         Button:
             text: 'Quit'
             on_press: quit()
+
+<FileChooserScreen>:
+    BoxLayout:
+        id: topLevel_filechooser
+        orientation: 'vertical'
+        Label:
+            text: "Chose a file_Kvdef"
+            size_hint_y: 0.2
+        FileChooserListView:
+            id: loader
+            path: 'C:\\Users\\Filip\\Projects\\Choreography-creator\\src'
+            filters: ['*.xml']
+            size_hint_y: 0.7
+            #on_selection: root.show
+        Button:
+            text: 'Load'
+            size_hint_y: 0.2
+            on_press: root.on_pressed_load()
+        Button:
+            text: 'Back'
+            size_hint_y: 0.1
+            on_press: root.manager.current = 'menu'
+
+<SegmentSelectorScreen>:
+    id: topSelectorScreen
+    BoxLayout:
+        id: segmentSelector
+        orientation: 'vertical'
+        Label:
+            id: title
+            text: 'Song name here'
+            size_hint_y: 0.2
+
+        ScrollView:
+            id: scrollViewLayout
+            size_hint_y: 0.7
+            bar_width: 10.0
+            GridLayout:
+                id: PartLayout
+                cols: 2
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.2
+            Button:
+                id: playbtn
+                text: 'play'
+                size_hint_x: 0.8
+                on_press: root.on_pressed_play()
+            Label:
+                text: 'loop'
+                size_hint_x: 0.2
+            CheckBox:
+                id: loop
+                size_hint_x: 0.1
+        Button:
+            text: 'Back'
+            size_hint_y: 0.1
+            on_press: root.manager.current = 'menu'

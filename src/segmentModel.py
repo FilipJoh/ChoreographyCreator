@@ -54,7 +54,7 @@ class songMetadata:
     def add_segment(self, start, end,  description = 'Not decided yet'):
         self.segments.append(segment(start, end,  description))
 
-    def __init__(self,name):
+    def __init__(self,name = "NaN"):
         self.name = name
         self.audioPath = "NaN"
         self.segments = []
