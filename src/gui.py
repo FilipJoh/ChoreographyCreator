@@ -141,10 +141,6 @@ class SegmentSelectorScreen(Screen):
         self.ids['playbtn'].text = 'play'
         return False
 
-    def on_loop(self):
-        app = App.get_running_app()
-        self.shouldLoop = True
-
 class ChoreographyCreator(App):
 
     def build(self):
