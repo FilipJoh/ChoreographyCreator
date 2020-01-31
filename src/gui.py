@@ -83,6 +83,14 @@ class PlaybackScreen(Screen):
         super(PlaybackScreen, self).__init__(**kwargs)
         self.waveform = ContainedWaveform.ScrollableSoundVizualizer(music, sound)
         self.add_widget(self.waveform)
+        stopButton = Button(text = "Stop", size_hint = (1.0, 0.2))
+        stopButton.bind(on_press = self.stop_playback)
+        self.add_widget(stopButton)
+
+    def stop_playback(self, button):
+        app = App.get_running_app()
+        app.sound.stop()
+        app.root.current = 'DanceSelector'
 
 class MainScreen(Screen):
     pass
@@ -105,7 +113,7 @@ class SegmentSelectorScreen(Screen):
                 start = app.SegmentModel.segments[i].start
                 end = app.SegmentModel.segments[i].end
                 music = music + app.audioSegment[start:end]
-            filePath = "../audio/intermed.mp3"
+            filePath = "../data/intermed.mp3"
             if os.path.exists(filePath):
                 os.remove(filePath)
             thefile = music.export(filePath, format="mp3")
@@ -130,6 +138,10 @@ class SegmentSelectorScreen(Screen):
         app.sm.remove_widget(app.root.get_screen('player'))
         self.ids['playbtn'].text = 'play'
         return False
+
+    def loop(self):
+        pass
+
 
 class ChoreographyCreator(App):
 
