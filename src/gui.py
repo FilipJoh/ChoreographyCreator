@@ -71,7 +71,6 @@ class FileChooserScreen(Screen):
         app = App.get_running_app()
         app.root.current = 'menu'
 
-
 class PlayerScreen(Screen):
     def __init__(self, **kwargs):
         super(PlayerScreen, self).__init__(**kwargs)
@@ -99,6 +98,7 @@ class SegmentSelectorScreen(Screen):
     def __init__(self, **kwargs):
         super(SegmentSelectorScreen, self).__init__(**kwargs)
         self.playlist = []
+        self.shouldLoop = False
 
     def on_pressed_play(self):
         for i in range(len(self.playlist)):
@@ -119,11 +119,13 @@ class SegmentSelectorScreen(Screen):
             thefile = music.export(filePath, format="mp3")
             thefile.seek(0)
             app.sound = SoundLoader.load(thefile.name) # redefinied need new bind
+            app.sound.loop = self.shouldLoop
             app.sound.bind(on_stop = self.on_stopped)
             self.ids['playbtn'].text = 'stop'
             app.sm.add_widget(PlaybackScreen(music, app.sound, name ='player'))
             if app.root.has_screen('player'):
                 app.root.current = 'player'
+            #pdb.set_trace()
             app.sound.play()
         else:
             self.ids['playbtn'].text = 'play'
@@ -139,9 +141,9 @@ class SegmentSelectorScreen(Screen):
         self.ids['playbtn'].text = 'play'
         return False
 
-    def loop(self):
-        pass
-
+    def on_loop(self):
+        app = App.get_running_app()
+        self.shouldLoop = True
 
 class ChoreographyCreator(App):
 
