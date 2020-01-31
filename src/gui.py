@@ -51,6 +51,7 @@ class FileChooserScreen(Screen):
         self.ids['loader'].layout.ids.scrollview.bar_width = 10.0
         self.ids['loader'].layout.ids.scrollview.height = 100.0
         self.ids['loader'].layout.ids.scrollview.scroll_type = ['content', 'bars']
+        self.ids['loader'].path = os.path.join(os.getcwd(),'..','data')
 
     def on_pressed_load(self):
         print('Loading..')
@@ -144,8 +145,9 @@ class ChoreographyCreator(App):
             #self.SegmentModel.clearData()
         self.SegmentModel = segmentModel.songMetadata()
         self.SegmentModel.importData(filePath)
-        self.audioSegment = AudioSegment.from_mp3(self.SegmentModel.audioPath)
-        self.sound = SoundLoader.load(self.SegmentModel.audioPath)
+        audioPath = os.path.join(os.path.split(filePath)[0], self.SegmentModel.audioPath)
+        self.audioSegment = AudioSegment.from_mp3(audioPath)
+        self.sound = SoundLoader.load(audioPath)
 
 if __name__ == '__main__':
     ChoreographyCreator().run()

@@ -2,4 +2,5 @@ audio/*
 deps
 __pycache__
 *.xml
+*.mp3
 venv/
