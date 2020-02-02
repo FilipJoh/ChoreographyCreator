@@ -45,9 +45,9 @@ class dancePartLayout(GridLayout):
             print('The checkbox', checkbox.id, 'is inactive')
             playlist[index] = 0
 
-class FileChooserScreen(Screen):
+class FileChooserScreen_Choreography(Screen):
     def __init__(self, **kwargs):
-        super(FileChooserScreen, self).__init__(**kwargs)
+        super(FileChooserScreen_Choreography, self).__init__(**kwargs)
         self.ids['loader'].layout.ids.scrollview.bar_width = 10.0
         self.ids['loader'].layout.ids.scrollview.height = 100.0
         self.ids['loader'].layout.ids.scrollview.scroll_type = ['content', 'bars']
@@ -71,11 +71,40 @@ class FileChooserScreen(Screen):
         app = App.get_running_app()
         app.root.current = 'menu'
 
-class PlayerScreen(Screen):
+class FileChooserScreen_Song(Screen):
     def __init__(self, **kwargs):
-        super(PlayerScreen, self).__init__(**kwargs)
-        self.layout = MacroLayout()
-        self.add_widget(self.layout)
+        super(FileChooserScreen_Song, self).__init__(**kwargs)
+        self.ids['loader'].layout.ids.scrollview.bar_width = 10.0
+        self.ids['loader'].layout.ids.scrollview.height = 100.0
+        self.ids['loader'].layout.ids.scrollview.scroll_type = ['content', 'bars']
+        self.ids['loader'].path = os.path.join(os.getcwd(),'..','data')
+        self.ids['loader'].files = [file for file in self.ids['loader'].files if file != '*intermed.mp3']
+
+    def on_pressed_load(self):
+        print('Loading..')
+        mainApp = App.get_running_app()
+        if len(self.ids['loader'].selection) > 0:
+            mainApp.load_song(self.ids['loader'].selection[0])
+            print('{} loaded!'.format(self.ids['loader'].selection[0]))
+
+            if not mainApp.sm.has_screen('SegmentCreate'):
+                mainApp.sm.add_widget(SegmentCreatorScreen(name='SegmentCreate'))
+                segmentCreatorScreen = mainApp.sm.get_screen('SegmentCreate')
+                segmentCreatorScreen.reload_audio()
+                segmentCreatorScreen.ids['waveform_holder'].add_widget(ContainedWaveform.ScrollableSoundVizualizer(mainApp.audioSegment, segmentCreatorScreen.sound))
+                mainApp.sm.current = 'SegmentCreate'
+            else:
+                segmentCreatorScreen = mainApp.sm.get_screen('SegmentCreate')
+                segmentCreatorScreen.ids['waveform_holder'].remove_widget(segmentCreatorScreen.ids['waveform_holder'].children[0])
+                segmentCreatorScreen.reload_audio()
+                segmentCreatorScreen.ids['waveform_holder'].add_widget(ContainedWaveform.ScrollableSoundVizualizer(mainApp.audioSegment, segmentCreatorScreen.sound))
+                mainApp.sm.current = 'SegmentCreate'
+        else:
+            Print("unable to load!")
+
+    def to_back(self):
+        app = App.get_running_app()
+        app.root.current = 'menu'
 
 class PlaybackScreen(Screen):
     def __init__(self, music, sound,**kwargs):
@@ -93,6 +122,35 @@ class PlaybackScreen(Screen):
 
 class MainScreen(Screen):
     pass
+
+class SegmentCreatorScreen(Screen):
+    def __init__(self,**kwargs):
+        super(SegmentCreatorScreen, self).__init__(**kwargs)
+        app = App.get_running_app()
+        self.sound_pos = 0
+
+    def reload_audio(self):
+        app = App.get_running_app()
+        audioPath = app.sound.source
+        app.sound.unload()
+        self.sound = SoundLoader.load(audioPath)
+
+    def enable_playback(self):
+        #app = App.get_running_app()
+        if self.sound.state == 'stop':
+            #pdb.set_trace()
+            self.sound.play()
+            if self.sound_pos < self.sound.length:
+                self.sound.seek(self.sound_pos)
+            print("set head to {} but really {}".format(self.sound_pos, self.sound.length))
+            self.ids['playBtn'].text = 'pause'
+        else:
+            self.sound_pos = self.sound.get_pos()
+            #self.song_length = self.sound.length
+            #pdb.set_trace()
+            self.sound.stop()
+            #pdb.set_trace()
+            self.ids['playBtn'].text = 'Play'
 
 class SegmentSelectorScreen(Screen):
     def __init__(self, **kwargs):
@@ -113,7 +171,7 @@ class SegmentSelectorScreen(Screen):
                 start = app.SegmentModel.segments[i].start
                 end = app.SegmentModel.segments[i].end
                 music = music + app.audioSegment[start:end]
-            filePath = "../data/intermed.mp3"
+            filePath = "../data/_cache/intermed.mp3"
             if os.path.exists(filePath):
                 os.remove(filePath)
             thefile = music.export(filePath, format="mp3")
@@ -148,7 +206,8 @@ class ChoreographyCreator(App):
         self.sm = ScreenManager()
         self.sm.add_widget(MainScreen(name = 'menu'))
         self.sm.add_widget(SegmentSelectorScreen(name = 'DanceSelector'))#PlayerScreen(name='DanceSelector'))
-        self.sm.add_widget(FileChooserScreen(name='Load audio metadata'))
+        self.sm.add_widget(FileChooserScreen_Choreography(name='Load audio metadata'))
+        self.sm.add_widget(FileChooserScreen_Song(name = 'RawSongLoader'))
         return self.sm
 
     def load_data(self, filePath):
@@ -156,6 +215,10 @@ class ChoreographyCreator(App):
         self.SegmentModel = segmentModel.songMetadata()
         self.SegmentModel.importData(filePath)
         audioPath = os.path.join(os.path.split(filePath)[0], self.SegmentModel.audioPath)
+        self.audioSegment = AudioSegment.from_mp3(audioPath)
+        self.sound = SoundLoader.load(audioPath)
+
+    def load_song(self, audioPath):
         self.audioSegment = AudioSegment.from_mp3(audioPath)
         self.sound = SoundLoader.load(audioPath)
 
