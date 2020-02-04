@@ -73,6 +73,11 @@
             size_hint_y: 0.7
 
         Button:
+            id: tagBtn
+            text: 'Tag segment'
+            size_hint_y: 0.2
+            on_press: root.toggle_tag()
+        Button:
             id: playBtn
             text: 'Play'
             size_hint_y: 0.2

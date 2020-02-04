@@ -9,11 +9,16 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.checkbox import CheckBox
+from kivy.graphics import Color
+from kivy.clock import Clock
+from kivy.graphics import Rectangle
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import ScreenManager, Screen
 from AudioViz import ContainedWaveform
 from kivy.uix.filechooser import FileChooserListView
 from kivy.core.audio import SoundLoader
+from kivy.uix.widget import Widget
+from kivy.properties import NumericProperty
 
 import segmentModel
 import pdb
@@ -123,17 +128,62 @@ class PlaybackScreen(Screen):
 class MainScreen(Screen):
     pass
 
+class SongSegment_graphical(Widget):
+    end_pos = NumericProperty(0)
+    start_pos = NumericProperty(0)
+
+    def __init__(self, start_pos, **kwargs):
+        super(SongSegment_graphical, self).__init__(**kwargs)
+        with self.canvas.before:
+            Color(0.0, 0.0, 1.0)
+            self.rect = Rectangle(pos = start_pos, size = (1,400))
+            self.start_pos = start_pos[0]
+
+    def reScale(self):
+        width = self.end_pos - self.start_pos
+        if width > 0:
+            self.rect.size = (width, 400)
+
+    def move_start(self):
+        offset = self.rect.pos[0] - self.start_pos
+        yPos = self.rect.pos[1]
+        self.end_pos += offset
+        self.rect.pos = (self.start_pos, yPos)
+        self.reScale()
+
 class SegmentCreatorScreen(Screen):
     def __init__(self,**kwargs):
         super(SegmentCreatorScreen, self).__init__(**kwargs)
         app = App.get_running_app()
         self.sound_pos = 0
+        self.tagged = False
+        self.elementList = []
 
     def reload_audio(self):
         app = App.get_running_app()
         audioPath = app.sound.source
         app.sound.unload()
         self.sound = SoundLoader.load(audioPath)
+
+    def toggle_tag(self):
+        playhead_pos = self.ids['waveform_holder'].children[0].visualizer.pH.rect.pos
+
+        if not self.tagged:
+            self.tagged = True
+            waveform_widget = self.ids['waveform_holder'].children[0].visualizer
+            with waveform_widget.canvas.before:
+                self.elementList.append(SongSegment_graphical(playhead_pos))
+                Clock.schedule_interval(self.update_tag, 1/60.0)
+                #Color(0.0,0.0,1.0)
+                #self.rect = Rectangle(pos = playhead_pos, size = (40, 700))
+        else:
+            self.tagged = False
+            self.elementList[-1].end_pos = playhead_pos[0]
+            self.elementList[-1].reScale()
+            Clock.unschedule(self.update_tag)
+            #pdb.set_trace()
+        #pdb.set_trace()
+        self.currentIndex = len(self.elementList) - 1
 
     def enable_playback(self):
         #app = App.get_running_app()
@@ -151,6 +201,13 @@ class SegmentCreatorScreen(Screen):
             self.sound.stop()
             #pdb.set_trace()
             self.ids['playBtn'].text = 'Play'
+
+    def update_tag(self, dt):
+        if self.currentIndex >= 0:
+            playhead_pos = self.ids['waveform_holder'].children[0].visualizer.pH.rect.pos
+            print("playhead pos {}".format(playhead_pos[0]))
+            self.elementList[self.currentIndex].end_pos = playhead_pos[0]
+            self.elementList[self.currentIndex].reScale()
 
 class SegmentSelectorScreen(Screen):
     def __init__(self, **kwargs):
