@@ -5,7 +5,7 @@
             text: 'Welcome to Choreography Creator'
         Button:
             text: 'Load audio metadata'
-            on_press: root.manager.current = 'Load audio metadata'
+            on_press: root.select_n_refresh_ChoreoLoader()#root.manager.current = 'Load audio metadata'
         Button:
             text: 'Create New Choreography'
             on_press: root.manager.current = 'RawSongLoader'
@@ -83,6 +83,11 @@
             size_hint_y: 0.2
             on_press: root.enable_playback()
 
+        Button:
+            id: saveBtn
+            text: 'Save'
+            size_hint_y: 0.1
+            on_press: root.save()
         Button:
             text: 'Back'
             size_hint_y: 0.1

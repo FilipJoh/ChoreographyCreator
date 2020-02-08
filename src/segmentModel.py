@@ -3,6 +3,7 @@ import prettierfier
 from bs4 import BeautifulSoup
 import pdb
 from re import split
+import os
 
 class segment:
 
@@ -11,9 +12,9 @@ class segment:
         descriptionElement = ET.SubElement(songSegment, "description")
         descriptionElement.text = self.description
         startElement = ET.SubElement(songSegment, "start")
-        startElement.text = str(self.start)
+        startElement.text = str(round(self.start))
         endElement = ET.SubElement(songSegment, "end")
-        endElement.text = str(self.end)
+        endElement.text = str(round(self.end))
 
     def __init__(self, start, end, description = 'Not decided yet'):
         self.description = description
@@ -36,6 +37,11 @@ class songMetadata:
 
         with open(fileName, 'w') as f:
             f.write(dataString)
+
+    def exportDataToAudioLoc(self, name):
+        head, tail = os.path.split(self.audioPath)
+        fullFilePath = os.path.join(head, name)
+        self.exportData(fullFilePath)
 
     def importData(self, fileName):
         tree = ET.parse(fileName)

@@ -19,6 +19,7 @@ from kivy.uix.filechooser import FileChooserListView
 from kivy.core.audio import SoundLoader
 from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty
+from kivy.core.text import Label as CoreLabel
 
 import segmentModel
 import pdb
@@ -103,6 +104,7 @@ class FileChooserScreen_Song(Screen):
                 segmentCreatorScreen.ids['waveform_holder'].remove_widget(segmentCreatorScreen.ids['waveform_holder'].children[0])
                 segmentCreatorScreen.reload_audio()
                 segmentCreatorScreen.ids['waveform_holder'].add_widget(ContainedWaveform.ScrollableSoundVizualizer(mainApp.audioSegment, segmentCreatorScreen.sound))
+                segmentCreatorScreen.song_pos = 0
                 mainApp.sm.current = 'SegmentCreate'
         else:
             Print("unable to load!")
@@ -126,7 +128,13 @@ class PlaybackScreen(Screen):
         app.root.current = 'DanceSelector'
 
 class MainScreen(Screen):
-    pass
+
+    def select_n_refresh_ChoreoLoader(self):
+        app = App.get_running_app()
+        danceSelectorScreen = app.sm.get_screen('Load audio metadata')
+        danceSelectorScreen.ids['loader']._update_files()
+        app.sm.current = 'Load audio metadata'
+
 
 class SongSegment_graphical(Widget):
     end_pos = NumericProperty(0)
@@ -151,6 +159,23 @@ class SongSegment_graphical(Widget):
         self.rect.pos = (self.start_pos, yPos)
         self.reScale()
 
+    def add_label(self, text):
+        with self.canvas.before:
+            Color(1.0, 1.0, 1.0)
+            self.label = Label(text = text, pos = (self.rect.pos[0] + self.rect.size[0]/2, self.rect.pos[1] - 200))
+            self.label.texture_update()
+            label_width_offset = self.label.texture.size[0] / 2
+
+
+            self.label.pos = (self.label.pos[0] - label_width_offset , self.rect.pos[1] - 100)
+            self.label.texture_update()
+
+            #self.label.refresh()
+            #pdb.set_trace()
+            #Rectangle(pos = self.label.pos, texture = self.label.texture, size = list(self.label.texture.size))
+            #pdb.set_trace()
+
+
 class SegmentCreatorScreen(Screen):
     def __init__(self,**kwargs):
         super(SegmentCreatorScreen, self).__init__(**kwargs)
@@ -158,6 +183,11 @@ class SegmentCreatorScreen(Screen):
         self.sound_pos = 0
         self.tagged = False
         self.elementList = []
+        audio_basename = os.path.basename(app.sound.source)
+        audio_basename = os.path.splitext(audio_basename)[0]
+        self.SegmentModel = segmentModel.songMetadata("Dance_{}".format(audio_basename))
+        self.SegmentModel.audioPath = app.sound.source
+        self.ids['songTitle'].text = audio_basename
 
     def reload_audio(self):
         app = App.get_running_app()
@@ -167,6 +197,8 @@ class SegmentCreatorScreen(Screen):
 
     def toggle_tag(self):
         playhead_pos = self.ids['waveform_holder'].children[0].visualizer.pH.rect.pos
+        playhead = self.ids['waveform_holder'].children[0].visualizer.pH
+        audio_visual_conversion = 1/playhead.visual_audio_rate * 1000.0
 
         if not self.tagged:
             self.tagged = True
@@ -174,15 +206,20 @@ class SegmentCreatorScreen(Screen):
             with waveform_widget.canvas.before:
                 self.elementList.append(SongSegment_graphical(playhead_pos))
                 Clock.schedule_interval(self.update_tag, 1/60.0)
-                #Color(0.0,0.0,1.0)
-                #self.rect = Rectangle(pos = playhead_pos, size = (40, 700))
+
         else:
             self.tagged = False
-            self.elementList[-1].end_pos = playhead_pos[0]
-            self.elementList[-1].reScale()
+            self.elementList[self.currentIndex].end_pos = playhead_pos[0]
+            self.elementList[self.currentIndex].reScale()
             Clock.unschedule(self.update_tag)
-            #pdb.set_trace()
-        #pdb.set_trace()
+
+            start_time = self.elementList[self.currentIndex].start_pos * audio_visual_conversion
+            end_time = self.elementList[self.currentIndex].end_pos * audio_visual_conversion
+            testText = "segment no.{}".format(self.currentIndex)
+
+            self.SegmentModel.add_segment(start_time, end_time, description = testText)
+            self.elementList[self.currentIndex].add_label(testText)
+
         self.currentIndex = len(self.elementList) - 1
 
     def enable_playback(self):
@@ -203,11 +240,19 @@ class SegmentCreatorScreen(Screen):
             self.ids['playBtn'].text = 'Play'
 
     def update_tag(self, dt):
+        #pdb.set_trace()
         if self.currentIndex >= 0:
+            playHead = self.ids['waveform_holder'].children[0].visualizer.pH
+
+            #pos_x = self.sound.get_pos() * playHead.visual_audio_rate + playHead.start_x
+
             playhead_pos = self.ids['waveform_holder'].children[0].visualizer.pH.rect.pos
-            print("playhead pos {}".format(playhead_pos[0]))
+            #print("playhead pos {}".format(playhead_pos[0]))
             self.elementList[self.currentIndex].end_pos = playhead_pos[0]
             self.elementList[self.currentIndex].reScale()
+
+    def save(self):
+        self.SegmentModel.exportDataToAudioLoc("TempTest")
 
 class SegmentSelectorScreen(Screen):
     def __init__(self, **kwargs):
