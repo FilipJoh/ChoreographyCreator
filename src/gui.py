@@ -100,7 +100,6 @@ class FileChooserScreen_Song(Screen):
                 segmentCreatorScreen = mainApp.sm.get_screen('SegmentCreate')
                 segmentCreatorScreen.reload_audio()
                 segmentCreatorScreen.ids['waveform_holder'].add_widget(ContainedWaveform.ScrollableSoundVizualizer(mainApp.audioSegment, segmentCreatorScreen.sound))
-                segmentCreatorScreen.bind_touch()
                 mainApp.sm.current = 'SegmentCreate'
             else:
                 segmentCreatorScreen = mainApp.sm.get_screen('SegmentCreate')
@@ -282,6 +281,35 @@ class SegmentCreatorScreen(Screen):
 
     def on_label_touch(self):
     	return True
+
+class SegmentCreatorScreen(Screen):
+    def __init__(self,**kwargs):
+        super(SegmentCreatorScreen, self).__init__(**kwargs)
+        app = App.get_running_app()
+        self.sound_pos = 0
+
+    def reload_audio(self):
+        app = App.get_running_app()
+        audioPath = app.sound.source
+        app.sound.unload()
+        self.sound = SoundLoader.load(audioPath)
+
+    def enable_playback(self):
+        #app = App.get_running_app()
+        if self.sound.state == 'stop':
+            #pdb.set_trace()
+            self.sound.play()
+            if self.sound_pos < self.sound.length:
+                self.sound.seek(self.sound_pos)
+            print("set head to {} but really {}".format(self.sound_pos, self.sound.length))
+            self.ids['playBtn'].text = 'pause'
+        else:
+            self.sound_pos = self.sound.get_pos()
+            #self.song_length = self.sound.length
+            #pdb.set_trace()
+            self.sound.stop()
+            #pdb.set_trace()
+            self.ids['playBtn'].text = 'Play'
 
 class SegmentSelectorScreen(Screen):
     def __init__(self, **kwargs):
