@@ -4,3 +4,4 @@
 [submodule "src/AudioViz"]
 	path = src/AudioViz
 	url = https://github.com/FilipJoh/AudioViz.git
+	branch = visual_seek_upgrade
