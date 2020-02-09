@@ -21,6 +21,8 @@ from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty
 from kivy.core.text import Label as CoreLabel
 
+#from kivy.graphics import Line
+
 import segmentModel
 import pdb
 
@@ -98,6 +100,7 @@ class FileChooserScreen_Song(Screen):
                 segmentCreatorScreen = mainApp.sm.get_screen('SegmentCreate')
                 segmentCreatorScreen.reload_audio()
                 segmentCreatorScreen.ids['waveform_holder'].add_widget(ContainedWaveform.ScrollableSoundVizualizer(mainApp.audioSegment, segmentCreatorScreen.sound))
+                segmentCreatorScreen.bind_touch()
                 mainApp.sm.current = 'SegmentCreate'
             else:
                 segmentCreatorScreen = mainApp.sm.get_screen('SegmentCreate')
@@ -105,6 +108,7 @@ class FileChooserScreen_Song(Screen):
                 segmentCreatorScreen.reload_audio()
                 segmentCreatorScreen.ids['waveform_holder'].add_widget(ContainedWaveform.ScrollableSoundVizualizer(mainApp.audioSegment, segmentCreatorScreen.sound))
                 segmentCreatorScreen.song_pos = 0
+                segmentCreatorScreen.bind_touch()
                 mainApp.sm.current = 'SegmentCreate'
         else:
             Print("unable to load!")
@@ -188,6 +192,12 @@ class SegmentCreatorScreen(Screen):
         self.SegmentModel = segmentModel.songMetadata("Dance_{}".format(audio_basename))
         self.SegmentModel.audioPath = app.sound.source
         self.ids['songTitle'].text = audio_basename
+        self.bind(on_touch_down = self.on_touch_down)
+
+
+    def bind_touch(self):
+        print("bind touch")
+        #self.ids.waveform_holder.children[0].visualizer.bind(on_touch_down = self.on_touch_down)
 
     def reload_audio(self):
         app = App.get_running_app()
@@ -226,13 +236,16 @@ class SegmentCreatorScreen(Screen):
         #app = App.get_running_app()
         if self.sound.state == 'stop':
             #pdb.set_trace()
+            playhead = self.ids['waveform_holder'].children[0].visualizer.pH
+            self.sound_pos = playhead.playHead_time#self.sound.get_pos()
             self.sound.play()
             if self.sound_pos < self.sound.length:
                 self.sound.seek(self.sound_pos)
             print("set head to {} but really {}".format(self.sound_pos, self.sound.length))
             self.ids['playBtn'].text = 'pause'
         else:
-            self.sound_pos = self.sound.get_pos()
+            #playhead = self.ids['waveform_holder'].children[0].visualizer.pH
+            #self.sound_pos = playhead.playHead_time#self.sound.get_pos()
             #self.song_length = self.sound.length
             #pdb.set_trace()
             self.sound.stop()
@@ -253,6 +266,22 @@ class SegmentCreatorScreen(Screen):
 
     def save(self):
         self.SegmentModel.exportDataToAudioLoc("TempTest")
+
+    def on_touch_down(self, triggered_screen, touch):
+        #pdb.set_trace()
+        print("Pos on Screen: x{} y{}".format(touch.x, touch.y))
+        if self.ids.songTitle.collide_point(*touch.pos):
+            return True
+        #pdb.set_trace()
+        #with self.canvas.before:
+        #    Color(1, 0, 0)
+        #    Rectangle(pos = touch.pos, size = (10, 10))
+            #touch.ud["line"] = Line(points=(touch.x, touch.y), width=5)
+        #pdb.set_trace()
+        return super(SegmentCreatorScreen, self).on_touch_down(touch)
+
+    def on_label_touch(self):
+    	return True
 
 class SegmentSelectorScreen(Screen):
     def __init__(self, **kwargs):
