@@ -24,7 +24,11 @@ class segment:
 
 class songMetadata:
 
-    def exportData(self, fileName):
+    def exportData(self, fileName, override = False):
+        pdb.set_trace()
+        if override:
+            self.xmlElement.clear()
+
         self.xmlElement.set('name', self.name)
         self.xmlElement.set('audioPath', self.audioPath)
         for segment in self.segments:
@@ -38,10 +42,10 @@ class songMetadata:
         with open(fileName, 'w') as f:
             f.write(dataString)
 
-    def exportDataToAudioLoc(self, name):
+    def exportDataToAudioLoc(self, name, override = False):
         head, tail = os.path.split(self.audioPath)
         fullFilePath = os.path.join(head, name)
-        self.exportData(fullFilePath)
+        self.exportData(fullFilePath, override = override)
 
     def importData(self, fileName):
         tree = ET.parse(fileName)
