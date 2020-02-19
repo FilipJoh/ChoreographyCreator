@@ -21,6 +21,7 @@ from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty, BooleanProperty, ObjectProperty
 from kivy.uix.textinput import TextInput
 from kivy.core.text import Label as CoreLabel
+from kivy.event import EventDispatcher
 
 #from kivy.graphics import Line
 
@@ -172,13 +173,16 @@ class MainScreen(Screen):
         danceSelectorScreen.ids['loader']._update_files()
         app.sm.current = 'Load audio metadata'
 
-class SongSegment_Handle(Widget):
+class SongSegment_Handle(Widget, EventDispatcher):
     active_edit = BooleanProperty(False)
+
+    #__events__ = ('on_handle_adjusted')
 
     def __init__(self, pos, size,**kwargs):
         offset = 20
         trigger_pos = (pos[0] - offset, pos[1])
         trigger_size = (size[0] + 2*offset, size[1])
+        self.register_event_type('on_handle_adjusted')
         super(SongSegment_Handle, self).__init__(pos = trigger_pos, size = trigger_size, **kwargs)
         with self.canvas:
             self.rect = Rectangle(pos = pos, size = size)
@@ -202,14 +206,19 @@ class SongSegment_Handle(Widget):
         print("touch down active_edit: {}", self.active_edit)
         return False"""
 
+    def on_handle_adjusted(self, *args):
+        pass
+
     def on_touch_up(self, touch):
         self.active_edit = False
         print("touch up")
+        self.dispatch('on_handle_adjusted')
         return True
 
 class SongSegment_graphical(Widget):
     end_pos = NumericProperty(0)
     start_pos = NumericProperty(0)
+    label = ObjectProperty()
 
     def __init__(self, start_pos, **kwargs):
         super(SongSegment_graphical, self).__init__(**kwargs)
@@ -225,14 +234,22 @@ class SongSegment_graphical(Widget):
         if width > 0:
             self.rect.size = (width, 100)
             self.size = self.rect.size
+        if self.label:
+            self.update_label()
 
     def move_start(self):
         offset = self.rect.pos[0] - self.start_pos
         yPos = self.rect.pos[1]
-        self.end_pos += offset
+        #self.end_pos += offset
         self.rect.pos = (self.start_pos, yPos)
         self.pos = self.rect.pos
         self.reScale()
+
+    def on_handles_adjusted(self, *args):
+        #width_tuple = (self.width, 0)
+        self.end_pos = self.endHandle.rect.pos[0] #+ self.width
+        self.start_pos = self.startHandle.rect.pos[0]
+        self.move_start()
 
     def add_label(self, text):
         with self.canvas:
@@ -244,6 +261,15 @@ class SongSegment_graphical(Widget):
             self.label.pos = (self.label.pos[0] - label_width_offset , self.rect.pos[1] - 100)
             self.label.texture_update()
             self.add_widget(self.label)
+
+    def update_label(self):
+        newLabel_pos_x = self.rect.pos[0] + self.rect.size[0]/2
+        self.label.pos = (newLabel_pos_x, self.label.pos[1])
+        self.label.texture_update()
+        label_width_offset = self.label.texture.size[0] / 2
+
+        self.label.pos = (self.label.pos[0] - label_width_offset , self.rect.pos[1] - 100)
+        self.label.texture_update()
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
@@ -261,9 +287,13 @@ class SongSegment_graphical(Widget):
             with self.canvas:
                 #pdb.set_trace()
                 Color(1.0, 1.0, 0.0)
-                width = 5
-                self.add_widget(SongSegment_Handle(pos = (self.start_pos, self.rect.size[1] - 40), size = (width, 300)))
-                self.add_widget(SongSegment_Handle(pos = (self.end_pos - width, self.rect.size[1] - 40), size = (width, 300)))
+                self.width = 5
+                self.startHandle = SongSegment_Handle(pos = (self.start_pos, self.rect.size[1] - 40), size = (self.width, 300))
+                self.startHandle.bind(on_handle_adjusted = self.on_handles_adjusted)
+                self.endHandle = SongSegment_Handle(pos = (self.end_pos - self.width, self.rect.size[1] - 40), size = (self.width, 300))
+                self.endHandle.bind(on_handle_adjusted = self.on_handles_adjusted)
+                self.add_widget(self.startHandle)
+                self.add_widget(self.endHandle)
 
 class SegmentCreatorScreen(Screen):
     def __init__(self,**kwargs):

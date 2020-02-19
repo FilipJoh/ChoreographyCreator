@@ -25,7 +25,6 @@ class segment:
 class songMetadata:
 
     def exportData(self, fileName, override = False):
-        pdb.set_trace()
         if override:
             self.xmlElement.clear()
 
