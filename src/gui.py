@@ -280,6 +280,9 @@ class SongSegment_graphical(Widget):
             self.label.on_touch_down(touch)
             print("on label")
             return True
+        else:
+            self.unhighlight_segment(touch)
+            print("somewhere else")
 
     def highlight_segment(self):
         #pdb.set_trace()
@@ -295,6 +298,14 @@ class SongSegment_graphical(Widget):
                 self.add_widget(self.startHandle)
                 self.add_widget(self.endHandle)
 
+    def unhighlight_segment(self, touch):
+        #pdb.set_trace()
+        if len(self.children) == 3:
+            if not (self.startHandle.collide_point(*touch.pos) or self.endHandle.collide_point(*touch.pos)):
+                self.remove_widget(self.startHandle)
+                self.startHandle.canvas.remove(self.startHandle.rect)
+                self.remove_widget(self.endHandle)
+                self.endHandle.canvas.remove(self.endHandle.rect)
 class SegmentCreatorScreen(Screen):
     def __init__(self,**kwargs):
         super(SegmentCreatorScreen, self).__init__(**kwargs)
