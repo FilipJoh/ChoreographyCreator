@@ -145,7 +145,7 @@ class FileChooserScreen_Song(Screen):
                 segmentCreatorScreen.song_pos = 0
                 mainApp.sm.current = 'SegmentCreate'
         else:
-            Print("unable to load!")
+            print("unable to load!")
 
     def to_back(self):
         app = App.get_running_app()
@@ -178,7 +178,8 @@ class SongSegment_Handle(Widget, EventDispatcher):
 
     #__events__ = ('on_handle_adjusted')
 
-    def __init__(self, pos, size,**kwargs):
+    def __init__(self, pos, size, handleOffset = 0, **kwargs):
+        self.pos_x_offset = handleOffset
         offset = 20
         trigger_pos = (pos[0] - offset, pos[1])
         trigger_size = (size[0] + 2*offset, size[1])
@@ -195,16 +196,16 @@ class SongSegment_Handle(Widget, EventDispatcher):
 
         print("active edit: {}".format(self.active_edit))
         if self.active_edit:
-            self.rect.pos = (touch.x, self.rect.pos[1])
+            self.rect.pos = (touch.x + self.pos_x_offset, self.rect.pos[1])
             self.pos = (touch.x, self.pos[1])
             return True
         else:
             super(SongSegment_Handle, self).on_touch_move(touch)
 
-    """def on_touch_down(self, touch):
+    def on_touch_down(self, touch):
         self.active_edit = True
         print("touch down active_edit: {}", self.active_edit)
-        return False"""
+        return False
 
     def on_handle_adjusted(self, *args):
         pass
@@ -220,10 +221,10 @@ class SongSegment_graphical(Widget):
     start_pos = NumericProperty(0)
     label = ObjectProperty()
 
-    def __init__(self, start_pos, **kwargs):
+    def __init__(self, start_pos, segmentColor,**kwargs):
         super(SongSegment_graphical, self).__init__(**kwargs)
         with self.canvas.before:
-            Color(0.0, 0.0, 1.0)
+            Color(segmentColor[0], segmentColor[1], segmentColor[2])#(0.0, 0.0, 1.0)
             self.rect = Rectangle(pos = start_pos, size = (1,100))
             self.start_pos = start_pos[0]
             self.pos = self.rect.pos
@@ -247,7 +248,7 @@ class SongSegment_graphical(Widget):
 
     def on_handles_adjusted(self, *args):
         #width_tuple = (self.width, 0)
-        self.end_pos = self.endHandle.rect.pos[0] #+ self.width
+        self.end_pos = self.endHandle.rect.pos[0] + self.width_offset
         self.start_pos = self.startHandle.rect.pos[0]
         self.move_start()
 
@@ -274,8 +275,10 @@ class SongSegment_graphical(Widget):
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             print("On segment")
-            self.highlight_segment()
-            return True
+            if len(self.children) == 1:
+                self.highlight_segment()
+                return True
+            return False
         elif self.label.collide_point(*touch.pos):
             self.label.on_touch_down(touch)
             print("on label")
@@ -283,6 +286,7 @@ class SongSegment_graphical(Widget):
         else:
             self.unhighlight_segment(touch)
             print("somewhere else")
+            return False
 
     def highlight_segment(self):
         #pdb.set_trace()
@@ -290,10 +294,10 @@ class SongSegment_graphical(Widget):
             with self.canvas:
                 #pdb.set_trace()
                 Color(1.0, 1.0, 0.0)
-                self.width = 5
-                self.startHandle = SongSegment_Handle(pos = (self.start_pos, self.rect.size[1] - 40), size = (self.width, 300))
+                self.width_offset = 5
+                self.startHandle = SongSegment_Handle(pos = (self.start_pos, self.rect.size[1] - 40), size = (self.width_offset, 300), handleOffset = 0)
                 self.startHandle.bind(on_handle_adjusted = self.on_handles_adjusted)
-                self.endHandle = SongSegment_Handle(pos = (self.end_pos - self.width, self.rect.size[1] - 40), size = (self.width, 300))
+                self.endHandle = SongSegment_Handle(pos = (self.end_pos - self.width_offset, self.rect.size[1] - 40), size = (self.width_offset, 300), handleOffset = 0)
                 self.endHandle.bind(on_handle_adjusted = self.on_handles_adjusted)
                 self.add_widget(self.startHandle)
                 self.add_widget(self.endHandle)
@@ -306,6 +310,8 @@ class SongSegment_graphical(Widget):
                 self.startHandle.canvas.remove(self.startHandle.rect)
                 self.remove_widget(self.endHandle)
                 self.endHandle.canvas.remove(self.endHandle.rect)
+
+
 class SegmentCreatorScreen(Screen):
     def __init__(self,**kwargs):
         super(SegmentCreatorScreen, self).__init__(**kwargs)
@@ -334,7 +340,13 @@ class SegmentCreatorScreen(Screen):
             self.tagged = True
             waveform_widget = self.ids['waveform_holder'].children[0].visualizer
             with waveform_widget.canvas.before:
-                SsG = SongSegment_graphical(playhead_pos)
+                if len(self.elementList) % 2 == 0:
+                    segmentColor =  [88, 0, 0]
+                else:
+                    segmentColor = [138, 0, 0]
+                segmentColor = [channel / 255 for channel in segmentColor]
+
+                SsG = SongSegment_graphical(playhead_pos, segmentColor)
                 self.elementList.append(SsG)
                 #pdb.set_trace()
                 waveform_widget.add_widget(SsG, index = 1)
