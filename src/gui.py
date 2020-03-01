@@ -18,10 +18,13 @@ from AudioViz import ContainedWaveform
 from kivy.uix.filechooser import FileChooserListView
 from kivy.core.audio import SoundLoader
 from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty, BooleanProperty, ObjectProperty
+from kivy.properties import NumericProperty, BooleanProperty, ObjectProperty, StringProperty
 from kivy.uix.textinput import TextInput
 from kivy.core.text import Label as CoreLabel
 from kivy.event import EventDispatcher
+from kivy.uix.behaviors import DragBehavior
+from kivy.uix.scatter import Scatter
+from kivy.uix.scatterlayout import ScatterLayout
 
 #from kivy.graphics import Line
 
@@ -175,12 +178,14 @@ class MainScreen(Screen):
 
 class SongSegment_Handle(Widget, EventDispatcher):
     active_edit = BooleanProperty(False)
+    name = StringProperty()
 
-    #__events__ = ('on_handle_adjusted')
+    __events__ = ('on_touch_down', 'on_touch_move', 'on_touch_up', 'on_kv_post', 'on_handle_adjusted')
 
-    def __init__(self, pos, size, handleOffset = 0, **kwargs):
+    def __init__(self, pos, size, handleOffset = 0, name = 'temp' , **kwargs):
         self.pos_x_offset = handleOffset
-        offset = 20
+        self.name = name
+        offset = 10
         trigger_pos = (pos[0] - offset, pos[1])
         trigger_size = (size[0] + 2*offset, size[1])
         self.register_event_type('on_handle_adjusted')
@@ -191,20 +196,23 @@ class SongSegment_Handle(Widget, EventDispatcher):
     def on_touch_move(self, touch):
         print("touch move in handle: self.pos: {}, self.size: {} active_edit".format(self.pos, self.size, self.active_edit))
 
-        if self.collide_point(*touch.pos) and not self.active_edit:
-            self.active_edit = True
-
-        print("active edit: {}".format(self.active_edit))
+        print("active edit: {} at {}".format(self.active_edit, self.name))
         if self.active_edit:
+            print(self.pos_x_offset)
             self.rect.pos = (touch.x + self.pos_x_offset, self.rect.pos[1])
             self.pos = (touch.x, self.pos[1])
             return True
         else:
-            super(SongSegment_Handle, self).on_touch_move(touch)
+            return False
 
     def on_touch_down(self, touch):
-        self.active_edit = True
-        print("touch down active_edit: {}", self.active_edit)
+        print("Handle touch event")
+        if self.collide_point(*touch.pos) and not self.active_edit:
+            self.active_edit = True
+            print("edit active for {}".format(self.name))
+            with self.canvas:
+                Color(0.0, 0.0, 1.0)
+            return True
         return False
 
     def on_handle_adjusted(self, *args):
@@ -212,8 +220,10 @@ class SongSegment_Handle(Widget, EventDispatcher):
 
     def on_touch_up(self, touch):
         self.active_edit = False
-        print("touch up")
+        with self.canvas:
+            Color(1.0, 1.0, 0.0)
         self.dispatch('on_handle_adjusted')
+        print('touch up {}'.format(self.name))
         return True
 
 class SongSegment_graphical(Widget):
@@ -224,7 +234,7 @@ class SongSegment_graphical(Widget):
     def __init__(self, start_pos, segmentColor,**kwargs):
         super(SongSegment_graphical, self).__init__(**kwargs)
         with self.canvas.before:
-            Color(segmentColor[0], segmentColor[1], segmentColor[2])#(0.0, 0.0, 1.0)
+            Color(segmentColor[0], segmentColor[1], segmentColor[2])
             self.rect = Rectangle(pos = start_pos, size = (1,100))
             self.start_pos = start_pos[0]
             self.pos = self.rect.pos
@@ -241,13 +251,14 @@ class SongSegment_graphical(Widget):
     def move_start(self):
         offset = self.rect.pos[0] - self.start_pos
         yPos = self.rect.pos[1]
-        #self.end_pos += offset
         self.rect.pos = (self.start_pos, yPos)
         self.pos = self.rect.pos
         self.reScale()
 
     def on_handles_adjusted(self, *args):
-        #width_tuple = (self.width, 0)
+        print ("start: active {}, end: active {}".format(self.startHandle.active_edit, self.endHandle.active_edit))
+        self.startHandle.active_edit = False
+        self.endHandle.active_edit = False
         self.end_pos = self.endHandle.rect.pos[0] + self.width_offset
         self.start_pos = self.startHandle.rect.pos[0]
         self.move_start()
@@ -276,28 +287,32 @@ class SongSegment_graphical(Widget):
         if self.collide_point(*touch.pos):
             print("On segment")
             if len(self.children) == 1:
+                print("HighLighting")
                 self.highlight_segment()
                 return True
+            for child in self.children:
+                child.on_touch_down(touch)
             return False
-        elif self.label.collide_point(*touch.pos):
+        elif not self.label == None and self.collide_point(*touch.pos):
             self.label.on_touch_down(touch)
             print("on label")
             return True
         else:
             self.unhighlight_segment(touch)
             print("somewhere else")
+            for child in self.children:
+                child.on_touch_down(touch)
             return False
 
     def highlight_segment(self):
-        #pdb.set_trace()
+        self.highlighted = True
         if len(self.children) == 1:
             with self.canvas:
-                #pdb.set_trace()
                 Color(1.0, 1.0, 0.0)
                 self.width_offset = 5
-                self.startHandle = SongSegment_Handle(pos = (self.start_pos, self.rect.size[1] - 40), size = (self.width_offset, 300), handleOffset = 0)
+                self.startHandle = SongSegment_Handle(pos = (self.start_pos, self.rect.size[1] - 40), size = (self.width_offset, 300), handleOffset = 0, name = 'start')
                 self.startHandle.bind(on_handle_adjusted = self.on_handles_adjusted)
-                self.endHandle = SongSegment_Handle(pos = (self.end_pos - self.width_offset, self.rect.size[1] - 40), size = (self.width_offset, 300), handleOffset = 0)
+                self.endHandle = SongSegment_Handle(pos = (self.end_pos - self.width_offset, self.rect.size[1] - 40), size = (self.width_offset, 300), handleOffset = 0, name = 'end')
                 self.endHandle.bind(on_handle_adjusted = self.on_handles_adjusted)
                 self.add_widget(self.startHandle)
                 self.add_widget(self.endHandle)
@@ -308,9 +323,12 @@ class SongSegment_graphical(Widget):
             if not (self.startHandle.collide_point(*touch.pos) or self.endHandle.collide_point(*touch.pos)):
                 self.remove_widget(self.startHandle)
                 self.startHandle.canvas.remove(self.startHandle.rect)
+
                 self.remove_widget(self.endHandle)
                 self.endHandle.canvas.remove(self.endHandle.rect)
-
+                self.highlighted = False
+            else:
+                print("nothing removed")
 
 class SegmentCreatorScreen(Screen):
     def __init__(self,**kwargs):
@@ -338,6 +356,7 @@ class SegmentCreatorScreen(Screen):
 
         if not self.tagged:
             self.tagged = True
+            self.ids.tagBtn.text = 'End Choreography Segment'
             waveform_widget = self.ids['waveform_holder'].children[0].visualizer
             with waveform_widget.canvas.before:
                 if len(self.elementList) % 2 == 0:
@@ -354,6 +373,7 @@ class SegmentCreatorScreen(Screen):
 
         else:
             self.tagged = False
+            self.ids.tagBtn.text = 'Start Choreography Segment'
             self.elementList[self.currentIndex].end_pos = playhead_pos[0]
             self.elementList[self.currentIndex].reScale()
             Clock.unschedule(self.update_tag)
@@ -377,7 +397,7 @@ class SegmentCreatorScreen(Screen):
             if self.sound_pos < self.sound.length:
                 self.sound.seek(self.sound_pos)
         #    print("set head to {} but really {}".format(self.sound_pos, self.sound.length))
-            self.ids['playBtn'].text = 'pause'
+            self.ids['playBtn'].text = 'Pause'
         else:
             self.sound.stop()
             #pdb.set_trace()
@@ -398,9 +418,12 @@ class SegmentCreatorScreen(Screen):
     def save(self):
         if len(self.elementList) > 0 and len(self.SegmentModel.segments) > 0:
             print("Segments: {}, visual elements: {}".format(len(self.SegmentModel.segments), len(self.elementList)))
+            self.SegmentModel.name = self.ids.songTitle.text
+            fileName = self.ids.songTitle.text.replace(' ','_')
+            fileName = ''.join(e for e in fileName if (e.isalnum() or e == '_'))
             for element, segment in zip(self.elementList, self.SegmentModel.segments):
                 segment.description = element.label.text
-        self.SegmentModel.exportDataToAudioLoc("TempTest", override = True)
+        self.SegmentModel.exportDataToAudioLoc(fileName, override = True)
 
 class SegmentSelectorScreen(Screen):
     def __init__(self, **kwargs):

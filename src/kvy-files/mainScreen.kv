@@ -13,6 +13,8 @@
             text: 'Quit'
             on_press: quit()
 
+<EditableLabel>:
+
 <FileChooserScreen_Choreography>:
     BoxLayout:
         id: topLevel_filechooser
@@ -63,7 +65,7 @@
     BoxLayout:
         id: topElement
         orientation: 'vertical'
-        Label:
+        EditableLabel:
             id: songTitle
             text: "Song title"
             size_hint_y: 0.1
@@ -74,7 +76,7 @@
 
         Button:
             id: tagBtn
-            text: 'Tag segment'
+            text: 'Start Choreography Segment'
             size_hint_y: 0.2
             on_press: root.toggle_tag()
         Button:
