@@ -478,13 +478,12 @@ class ChoreographyCreator(App):
         test = Builder.load_file('kvy-files/mainScreen.kv')
         self.sm = ScreenManager()
         self.sm.add_widget(MainScreen(name = 'menu'))
-        self.sm.add_widget(SegmentSelectorScreen(name = 'DanceSelector'))#PlayerScreen(name='DanceSelector'))
+        self.sm.add_widget(SegmentSelectorScreen(name = 'DanceSelector'))
         self.sm.add_widget(FileChooserScreen_Choreography(name='Load audio metadata'))
         self.sm.add_widget(FileChooserScreen_Song(name = 'RawSongLoader'))
         return self.sm
 
     def load_data(self, filePath):
-            #self.SegmentModel.clearData()
         self.SegmentModel = segmentModel.songMetadata()
         self.SegmentModel.importData(filePath)
         audioPath = os.path.join(os.path.split(filePath)[0], self.SegmentModel.audioPath)
