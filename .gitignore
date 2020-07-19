@@ -8,3 +8,5 @@ venv/
 src/build
 src/dist
 src/CCTest.spec
+web/node_modules
+web/offline_assets
