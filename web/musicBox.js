@@ -15,10 +15,13 @@ var player = function(){
   this.visual = WaveSurfer.create({
       container: '#waveform',
       scrollParent: true,
+      //hideScrollbar: true,
       plugins: [
-       WaveSurfer.regions.create({})
+       WaveSurfer.regions.create()
      ]
   });
+  this.visual.addRegion({id: "test", start: 0, end: 30, color: "rgba(255.0, 0.0, 0.0, 0.2)"});
+  this.visual.enableDragSelection({id: "test_2", color: "rgba(255.0, 0.0, 0.0, 0.8)"})
 };
 player.prototype = {
   playMusic: function() {
@@ -33,7 +36,7 @@ player.prototype = {
       this.sound.seek(this.pauseTime, this.playId);
     }
     this.visual.play();
-    this.visual.addRegion(id = "test", start = 0.0, end = 10.0)
+
     playBtn.style.display = 'none';
     pauseBtn.style.display = 'block';
   },
@@ -60,12 +63,8 @@ player.prototype = {
     } else {
       console.log("sound is null");
     }
+
     this.visual.stop();
-    console.log("Current regions:");
-    for (var index = 0; this.visual.regions.list.length; index++ )
-    {
-      console.log(this.visual.regions.list[index].id.toString());
-    }
   }
 };
 
