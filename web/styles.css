@@ -24,20 +24,15 @@ p {
 }
 
 
-.controlsOuter {
+.controls{
   position: absolute;
   width: 100%;
   height: 125px;
-  top: 3%;
-}
-.controlsInner {
-  position: absolute;
-  width: 100%;
-  height: 125px;
-  left: 0;
-  margin: 0px;
+  top: 60%;
+  display: block;
 }
 .btn {
+  display: block;
   position: absolute;
   cursor: pointer;
   opacity: 0.9;
@@ -55,7 +50,7 @@ p {
   width: 148px;
   height: 125px;
   left: 50%;
-  margin: auto -170px;
+  margin: auto -228px;
 }
 
 #pauseBtn {
@@ -63,7 +58,7 @@ p {
   width: 148px;
   height: 125px;
   left: 50%;
-  margin: auto -170px;
+  margin: auto -228px;
   display: none;
 }
 
@@ -72,7 +67,7 @@ p {
   width: 148px;
   height: 125px;
   left: 50%;
-  margin: auto 0px;
+  margin: auto -74px;
 }
 
 #saveBtn {
@@ -80,5 +75,14 @@ p {
   width: 148px;
   height: 125px;
   left: 50%;
-  margin: auto 170px;
+  margin: auto 80px;
+}
+
+#waveform {
+  position: fixed;
+  top: 10%;
+  width: 70%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, 50%);
 }

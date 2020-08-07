@@ -4,16 +4,19 @@
   <head>
     <title>ChoreographyCreator_v.0.0.1</title>
     <script src= "node_modules/howler/src/howler.core.js"></script>
+    <!--script src="node_modules/wavesurfer/dist/wavesurfer.js"></script-->
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"></script>
     <link rel= "stylesheet" href= "./styles.css">
   </head>
   <body>
-      <div class="controlsOuter">
-        <div class="controlsInner">
+      <input type="file" id="fileinput" />
+      <div id="waveform"></div>
+      <div class="controls">
           <div class="btn" id="playBtn"></div>
           <div class="btn" id="pauseBtn"></div>
           <div class="btn" id="stopBtn"></div>
           <div class="btn" id="saveBtn"></div>
-        </div>
       </div>
 
     <script src= "./musicBox.js"></script>
