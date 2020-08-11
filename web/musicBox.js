@@ -25,16 +25,6 @@ var player = function(){
 };
 player.prototype = {
   playMusic: function() {
-    this.sound = new Howl({
-        src: ["../data/Rasputin.mp3"],
-        html5: true
-    });
-
-    //this.visual.load("../data/Rasputin.mp3")
-    //this.playId = this.sound.play();
-    if (this.pauseTime != null) {
-      this.sound.seek(this.pauseTime, this.playId);
-    }
     this.visual.play();
 
     playBtn.style.display = 'none';
@@ -42,28 +32,14 @@ player.prototype = {
   },
 
   pauseMusic: function() {
-    if (this.sound != null) {
-      //this.sound.pause();
-      this.visual.pause();
-      this.pauseTime = this.sound.seek(this.playId);
-      pauseBtn.style.display = 'none';
-      playBtn.style.display = 'block';
-      console.log(this.pauseTime.toString());
-    }
+    this.visual.pause();
+    pauseBtn.style.display = 'none';
+    playBtn.style.display = 'block';
   },
 
   stopMusic: function() {
-    if (this.sound != null) {
-      console.log("sound is something");
-      console.log((this.sound.playing()).toString());
-      this.sound.stop();
-      pauseBtn.style.display = 'none'
-      playBtn.style.display = 'block'
-      this.pauseTime = 0;
-    } else {
-      console.log("sound is null");
-    }
-
+    pauseBtn.style.display = 'none'
+    playBtn.style.display = 'block'
     this.visual.stop();
   }
 };
