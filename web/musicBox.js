@@ -48,6 +48,8 @@ var player = function(){
 
   // Double clicking on a region opens up a text input
   this.visual.on('region-dblclick', function(region) {
+    region.update({drag: true, resize:true})
+
     console.log("Generate textform at region: %s", region.id)
     var input = document.createElement("INPUT");
     input.setAttribute('type', 'text');
@@ -59,7 +61,7 @@ var player = function(){
           // Add label
           region.attributes.label = input.value;
           region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
-          region.update({});
+          region.update({drag: false, resize: false});
 
           var textElem = document.createElement("span");
           textElem.appendChild(document.createTextNode(input.value));
@@ -121,7 +123,7 @@ var player = new player();
 document.addEventListener("keydown", function(event) {
   console.log("keypress detected");
   if (event.keyCode == 17 && !isDragEnabled){
-    player.visual.enableDragSelection({id: "test_2_", color: "rgba(255.0, 0.0, 0.0, 0.8)"});
+    player.visual.enableDragSelection({id: "test_2_", color: "rgba(255.0, 0.0, 0.0, 0.8)", drag:true, resize: true});
     console.log("drag selection enabled");
     isDragEnabled = true;
   }
@@ -129,7 +131,8 @@ document.addEventListener("keydown", function(event) {
 
 document.addEventListener("keyup", function(event) {
   if (event.keyCode == 17){
-    player.visual.disableDragSelection();
+    //player.visual.regions.update({drag: false, resize: false})
+    player.visual.disableDragSelection({drag: false, resize: false});
     console.log("drag selection disabled");
     isDragEnabled = false;
   }
