@@ -1,10 +1,13 @@
 console.log("start");
 
 // Cache references to DOM elements. From howler example
-var elms = ['playBtn', 'pauseBtn', 'stopBtn', 'saveBtn'];
+var elms = ['playBtn', 'pauseBtn', 'stopBtn', 'saveBtn', 'waveform'];
 elms.forEach(function(elm) {
   window[elm] = document.getElementById(elm);
 });
+
+var regionColor;
+var isDragEnabled = false;
 
 // function constructor for player, the class containing the howler instance and playback functions
 var player = function(){
@@ -33,10 +36,62 @@ var player = function(){
 
   this.visual.on('region-mouseenter', function(region) {
     console.log("entered region: %s", region.id)
+    regionColor = region.color;
+    region.color = "rgba(0.0, 0.0, 255.0, 0.5)";
+    region.update({});
   })
 
-  this.visual.addRegion({id: "test_", start: 0, end: 30, color: "rgba(255.0, 0.0, 0.0, 0.5)"});
-  this.visual.enableDragSelection({id: "test_2_", color: "rgba(255.0, 0.0, 0.0, 0.8)"});
+  this.visual.on('region-mouseleave', function(region) {
+    region.color = regionColor;
+    region.update({});
+  })
+
+  // Double clicking on a region opens up a text input
+  this.visual.on('region-dblclick', function(region) {
+    console.log("Generate textform at region: %s", region.id)
+    var input = document.createElement("INPUT");
+    input.setAttribute('type', 'text');
+    input.setAttribute('id', 'textInput');
+    input.addEventListener("keydown", function(event) {
+        if(event.keyCode == 13) {
+          console.log("pressed enter in textbox!");
+
+          // Add label
+          region.attributes.label = input.value;
+          region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
+          region.update({});
+
+          var textElem = document.createElement("span");
+          textElem.appendChild(document.createTextNode(input.value));
+          textElem.style.color = "white";
+          document.getElementById("waveform").appendChild(textElem);
+
+          document.getElementById("waveform").removeChild(input);
+        }
+    })
+
+    if (!document.getElementById('textInput')) {
+      console.log("no inputtext found");
+      document.getElementById("waveform").appendChild(input);
+      input.value = region.attributes.label;
+    }
+  })
+
+  /*this.visual.addEventListener("keydown", function(event) {
+    if (event.ctrlKey){
+      this.visual.enableDragSelection({id: "test_2_", color: "rgba(255.0, 0.0, 0.0, 0.8)"});
+      console.log("drag selection enabled");
+    }
+  })
+
+  this.visual.addEventListener("keyup", function(event) {
+    if (event.ctrlKey){
+      this.visual.disableDragSelection();
+      console.log("drag selection disabled");
+    }
+  })*/
+
+  this.visual.addRegion({id: "test_", start: 0, end: 30, color: "rgba(255.0, 0.0, 0.0, 0.5)", attributes: { label: 'test'}});
 
 };
 player.prototype = {
@@ -62,6 +117,24 @@ player.prototype = {
 
 // actual object creation
 var player = new player();
+
+document.addEventListener("keydown", function(event) {
+  console.log("keypress detected");
+  if (event.keyCode == 17 && !isDragEnabled){
+    player.visual.enableDragSelection({id: "test_2_", color: "rgba(255.0, 0.0, 0.0, 0.8)"});
+    console.log("drag selection enabled");
+    isDragEnabled = true;
+  }
+})
+
+document.addEventListener("keyup", function(event) {
+  if (event.keyCode == 17){
+    player.visual.disableDragSelection();
+    console.log("drag selection disabled");
+    isDragEnabled = false;
+  }
+})
+
 
 // Bind our player controls.
 playBtn.addEventListener('click', function() {

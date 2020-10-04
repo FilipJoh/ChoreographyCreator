@@ -86,3 +86,9 @@ p {
   margin-right: -50%;
   transform: translate(-50%, 50%);
 }
+
+region.wavesurfer-region:before {
+    content: attr(data-region-label);
+    position: absolute;
+    top: 0;
+}
