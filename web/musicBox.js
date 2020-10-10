@@ -8,6 +8,9 @@ elms.forEach(function(elm) {
 
 var regionColor;
 var isDragEnabled = false;
+var resizeColor = "rgba(0.0, 0.0, 255.0, 0.5)"
+var normalColor = "rgba(255.0, 0.0, 0.0, 0.8)"
+
 
 // function constructor for player, the class containing the howler instance and playback functions
 var player = function(){
@@ -36,14 +39,22 @@ var player = function(){
 
   this.visual.on('region-mouseenter', function(region) {
     console.log("entered region: %s", region.id)
-    regionColor = region.color;
-    region.color = "rgba(0.0, 0.0, 255.0, 0.5)";
-    region.update({});
+    if(isDragEnabled) {
+      regionColor = region.color;
+      region.color = resizeColor;
+      region.update({drag: true, resize: true});
+    }
   })
 
   this.visual.on('region-mouseleave', function(region) {
-    region.color = regionColor;
-    region.update({});
+    region.color = normalColor;
+    if (!isDragEnabled) {
+      region.update({drag: false, resize: false});
+    }
+    else {
+      region.update({});
+    }
+    console.log("left region: %s", region.id)
   })
 
   // Double clicking on a region opens up a text input
@@ -93,7 +104,7 @@ var player = function(){
     }
   })*/
 
-  this.visual.addRegion({id: "test_", start: 0, end: 30, color: "rgba(255.0, 0.0, 0.0, 0.5)", attributes: { label: 'test'}});
+  //this.visual.addRegion({id: "test_", start: 0, end: 30, color: "rgba(255.0, 0.0, 0.0, 0.5)", attributes: { label: 'test'}, drag: false, resize: false});
 
 };
 player.prototype = {
@@ -127,14 +138,39 @@ document.addEventListener("keydown", function(event) {
     console.log("drag selection enabled");
     isDragEnabled = true;
   }
+
+  console.log("Key Pressed");
+  console.log(event.keyCode);
+  if (event.keyCode == 32) {
+    console.log("space pressed");
+    if (player.visual.isPlaying())
+    {
+      console.log("should pause")
+      player.pauseMusic();
+    }
+    else
+    {
+      player.playMusic();
+      console.log("Should play");
+    }
+
+  }
+
 })
 
 document.addEventListener("keyup", function(event) {
-  if (event.keyCode == 17){
+  if (event.keyCode == 17) {
     //player.visual.regions.update({drag: false, resize: false})
     player.visual.disableDragSelection({drag: false, resize: false});
     console.log("drag selection disabled");
     isDragEnabled = false;
+    Object.keys(player.visual.regions.list).forEach(function (id) {
+      var region = player.visual.regions.list[id];
+      region.color = normalColor;
+      region.update({drag: false, resize: false});
+    })
+
+
   }
 })
 
