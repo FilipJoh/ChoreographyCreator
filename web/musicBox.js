@@ -23,6 +23,7 @@ var player = function(){
       container: '#waveform',
       scrollParent: true,
       //hideScrollbar: true,
+
       plugins: [
        WaveSurfer.regions.create()
      ]
@@ -63,6 +64,7 @@ var player = function(){
 
     console.log("Generate textform at region: %s", region.id)
     var input = document.createElement("INPUT");
+
     input.setAttribute('type', 'text');
     input.setAttribute('id', 'textInput');
     input.addEventListener("keydown", function(event) {
@@ -83,28 +85,34 @@ var player = function(){
         }
     })
 
+    var description = document.createElement("INPUT");
+    description.setAttribute('type', 'text');
+    description.setAttribute('id', 'descInput');
+    description.addEventListener("keydown", function(event) {
+        if(event.keyCode == 13) {
+          console.log("pressed enter in 2nd textbox!");
+
+          // Add label
+          region.attributes.description = description.value;
+          region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
+          region.update({drag: false, resize: false});
+
+          var textElem = document.createElement("span");
+          textElem.appendChild(document.createTextNode(description.value));
+          textElem.style.color = "white";
+          document.getElementById("waveform").appendChild(textElem);
+
+          document.getElementById("waveform").removeChild(description);
+        }
+    })
+
     if (!document.getElementById('textInput')) {
       console.log("no inputtext found");
       document.getElementById("waveform").appendChild(input);
+      document.getElementById("waveform").appendChild(description);
       input.value = region.attributes.label;
     }
   })
-
-  /*this.visual.addEventListener("keydown", function(event) {
-    if (event.ctrlKey){
-      this.visual.enableDragSelection({id: "test_2_", color: "rgba(255.0, 0.0, 0.0, 0.8)"});
-      console.log("drag selection enabled");
-    }
-  })
-
-  this.visual.addEventListener("keyup", function(event) {
-    if (event.ctrlKey){
-      this.visual.disableDragSelection();
-      console.log("drag selection disabled");
-    }
-  })*/
-
-  //this.visual.addRegion({id: "test_", start: 0, end: 30, color: "rgba(255.0, 0.0, 0.0, 0.5)", attributes: { label: 'test'}, drag: false, resize: false});
 
 };
 player.prototype = {
@@ -153,9 +161,7 @@ document.addEventListener("keydown", function(event) {
       player.playMusic();
       console.log("Should play");
     }
-
   }
-
 })
 
 document.addEventListener("keyup", function(event) {
@@ -169,11 +175,24 @@ document.addEventListener("keyup", function(event) {
       region.color = normalColor;
       region.update({drag: false, resize: false});
     })
-
-
   }
 })
 
+var size = 1;
+var scaleStep = 1;
+document.addEventListener('wheel',function(event){
+    //mouseController.wheel(event);
+    if (event.deltaY < 0){
+      size -= scaleStep;
+    }
+    else {
+      size += scaleStep;
+    }
+    console.log("mouse event triggered %f", size);
+    player.visual.zoom(Number(size));
+    return false;
+    //event.preventDefault();
+});
 
 // Bind our player controls.
 playBtn.addEventListener('click', function() {
