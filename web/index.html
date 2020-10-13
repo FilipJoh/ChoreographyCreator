@@ -8,15 +8,20 @@
     <link rel= "stylesheet" href= "./styles.css">
   </head>
   <body>
-      <input type="file" id="fileinput" />
+      <div id="inputHolder">
+        <input type="file" id="fileinput" name="Chose song" />
+      </div>
       <div id="waveform"></div>
       <div class="controls">
           <div class="btn" id="playBtn"></div>
           <div class="btn" id="pauseBtn"></div>
           <div class="btn" id="stopBtn"></div>
           <div class="btn" id="saveBtn"></div>
+          <div id="help-tips">
+            <p> Hold down ctrl to enable region creation!</p>
+          </div>
       </div>
-
+      <h1> welcome to ChoreographyCreator </h1>
     <script src= "./musicBox.js"></script>
   </body>
 </html>
