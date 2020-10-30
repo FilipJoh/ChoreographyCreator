@@ -8,6 +8,7 @@ elms.forEach(function(elm) {
 
 var regionColor;
 var isDragEnabled = false;
+var isRenameActive = false;
 var resizeColor = "rgba(0.0, 0.0, 255.0, 0.5)"
 var normalColor = "rgba(255.0, 0.0, 0.0, 0.8)"
 
@@ -20,6 +21,7 @@ var player = function(){
   this.playId = null;
   this.pauseTime = null;
   this.textElem = null;
+  this.regionLabel = null;
   this.visual = WaveSurfer.create({
       container: '#waveform',
       scrollParent: true,
@@ -47,7 +49,8 @@ var player = function(){
   })
 
   this.visual.on('region-mouseleave', function(region) {
-    region.color = normalColor;
+    if (!isRenameActive)
+      region.color = normalColor;
     if (!isDragEnabled) {
       region.update({drag: false, resize: false});
     }
@@ -59,7 +62,10 @@ var player = function(){
 
   // Double clicking on a region opens up a text input
   this.visual.on('region-dblclick', function(region) {
+    isRenameActive = true;
+    region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
     region.update({drag: true, resize:true})
+
     console.log("Generate textform at region: %s", region.id)
     var input = document.createElement("INPUT");
 
@@ -71,10 +77,11 @@ var player = function(){
 
           // Add label
           region.attributes.label = input.value;
-          region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
+          //region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
           region.update({drag: false, resize: false});
 
-          document.getElementById("annotationDescriptor").removeChild(input);
+          document.getElementById("Region_label").removeChild(input);
+          isRenameActive = false;
         }
     })
 
@@ -87,32 +94,56 @@ var player = function(){
 
           // Add label
           region.attributes.description = description.value;
-          region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
+          //region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
           region.update({drag: false, resize: false});
 
-          document.getElementById("annotationDescriptor").removeChild(description);
+          document.getElementById("Description_label").removeChild(description);
+          isRenameActive =false;
         }
     })
 
     if (!document.getElementById('textInput')) {
       console.log("no inputtext found");
-      document.getElementById("annotationDescriptor").appendChild(input);
-      document.getElementById("annotationDescriptor").appendChild(description);
+
+      if (this.regionLabel) {
+        document.getElementById("Region_label").removeChild(this.regionLabel);
+        this.regionLabel = null;
+      }
+      document.getElementById("Region_label").appendChild(input);
+
+      if (this.textElem) {
+        document.getElementById("Description_label").removeChild(this.textElem);
+        this.textElem = null;
+      }
+      document.getElementById("Description_label").appendChild(description);
+
       input.value = region.attributes.label;
       description.value = region.attributes.description;
     }
   })
 
   this.visual.on('region-in', function(region) {
-    this.textElem = document.createElement("span")
-    this.textElem.appendChild(document.createTextNode(region.attributes.description));
-    this.textElem.style.color = "white";
-    document.getElementById("annotationDescriptor").appendChild(this.textElem);
+
+    if(document.querySelectorAll('input[type=text]').length==0)
+    {
+      this.regionLabel = document.createElement("Span");
+      this.regionLabel.appendChild(document.createTextNode(region.attributes.label));
+      document.getElementById("Region_label").appendChild(this.regionLabel);
+
+      this.textElem = document.createElement("span");
+      this.textElem.appendChild(document.createTextNode(region.attributes.description));
+      document.getElementById("Description_label").appendChild(this.textElem);
+    }
   });
 
   this.visual.on('region-out', function(region) {
-    document.getElementById("annotationDescriptor").removeChild(this.textElem);
+    if (this.textElem)
+      document.getElementById("Description_label").removeChild(this.textElem);
     this.textElem = null;
+
+    if (this.regionLabel)
+      document.getElementById("Region_label").removeChild(this.regionLabel);
+    this.regionLabel = null;
   });
 
 };
@@ -144,7 +175,6 @@ document.addEventListener("keydown", play_pause_edit, true);
 
 document.addEventListener("keyup", function(event) {
   if (event.keyCode == 17) {
-    //player.visual.regions.update({drag: false, resize: false})
     player.visual.disableDragSelection({drag: false, resize: false});
     console.log("drag selection disabled");
     isDragEnabled = false;
@@ -164,9 +194,7 @@ function play_pause_edit(event) {
     isDragEnabled = true;
   }
 
-  var nodes = document.querySelectorAll('input[type=text]');
-  var nodeRefToFind = document.activeElement
-  var  foundParagraph = Array.from(nodes).find((node) => node === nodeRefToFind);
+  var foundParagraph = isActive('input[type=text]');
 
   if (event.keyCode == 32 && !foundParagraph) {
     console.log("space pressed");
@@ -181,6 +209,13 @@ function play_pause_edit(event) {
       console.log("Should play");
     }
   }
+}
+
+function isActive(nodeType)
+{
+  var nodes = document.querySelectorAll(nodeType);
+  var nodeRefToFind = document.activeElement
+  return Array.from(nodes).find((node) => node === nodeRefToFind);
 }
 
 var size = 1;

@@ -21,7 +21,7 @@ h1 {
 }
 
 p {
-  font-family: verdana;
+  font-family: Verdana;
   font-size: 20px;
   color: red
 }
@@ -50,6 +50,25 @@ p {
 .btn:hover {
   opacity: 0.7;
 }
+
+.text_n_label {
+  display: grid;
+  grid-template-columns: 200pt auto;
+  grid-gap:5px;
+  border-color: #8b0000;
+  border-bottom-style: solid;
+}
+
+.text_n_label label {
+  font-family: Verdana;
+  font-size: 20px;
+  color: red;
+  text-align: right;
+}
+
+.text_n_label label:after {content: ":";}
+
+
 #help-tips{
   position: absolute;
   top: 70%;
@@ -137,4 +156,20 @@ region.wavesurfer-region:before {
   border-color: #8b0000;
   border-style: solid;
 
+}
+
+input[type="text"]
+{
+    width:80%;
+    font-family: verdana;
+    font-size: 20px;
+    color: red
+}
+
+span
+{
+  width: 80%;
+  font-family: verdana;
+  font-size: 20pt;
+  color: white;
 }
