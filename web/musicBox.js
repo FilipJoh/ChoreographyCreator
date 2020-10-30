@@ -19,11 +19,11 @@ var player = function(){
   this.sound = null;
   this.playId = null;
   this.pauseTime = null;
+  this.textElem = null;
+  this.regionEdit = false;
   this.visual = WaveSurfer.create({
       container: '#waveform',
       scrollParent: true,
-      //hideScrollbar: true,
-
       plugins: [
        WaveSurfer.regions.create()
      ]
@@ -61,7 +61,7 @@ var player = function(){
   // Double clicking on a region opens up a text input
   this.visual.on('region-dblclick', function(region) {
     region.update({drag: true, resize:true})
-
+    this.regionEdit = true;
     console.log("Generate textform at region: %s", region.id)
     var input = document.createElement("INPUT");
 
@@ -75,11 +75,6 @@ var player = function(){
           region.attributes.label = input.value;
           region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
           region.update({drag: false, resize: false});
-
-          var textElem = document.createElement("span");
-          textElem.appendChild(document.createTextNode(input.value));
-          textElem.style.color = "white";
-          document.getElementById("waveform").appendChild(textElem);
 
           document.getElementById("waveform").removeChild(input);
         }
@@ -97,11 +92,6 @@ var player = function(){
           region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
           region.update({drag: false, resize: false});
 
-          var textElem = document.createElement("span");
-          textElem.appendChild(document.createTextNode(description.value));
-          textElem.style.color = "white";
-          document.getElementById("waveform").appendChild(textElem);
-
           document.getElementById("waveform").removeChild(description);
         }
     })
@@ -112,7 +102,22 @@ var player = function(){
       document.getElementById("waveform").appendChild(description);
       input.value = region.attributes.label;
     }
+
+    this.regionEdit = !(document.getElementById("waveform").childElementCount == 1);
+    console.log(this.regionEdit);
   })
+
+  this.visual.on('region-in', function(region) {
+    this.textElem = document.createElement("span")
+    this.textElem.appendChild(document.createTextNode(region.attributes.description));
+    this.textElem.style.color = "white";
+    document.getElementById("waveform").appendChild(this.textElem);
+  });
+
+  this.visual.on('region-out', function(region) {
+    document.getElementById("waveform").removeChild(this.textElem);
+    this.textElem = null;
+  });
 
 };
 player.prototype = {
@@ -139,30 +144,7 @@ player.prototype = {
 // actual object creation
 var player = new player();
 
-document.addEventListener("keydown", function(event) {
-  console.log("keypress detected");
-  if (event.keyCode == 17 && !isDragEnabled){
-    player.visual.enableDragSelection({id: "test_2_", color: "rgba(255.0, 0.0, 0.0, 0.8)", drag:true, resize: true});
-    console.log("drag selection enabled");
-    isDragEnabled = true;
-  }
-
-  console.log("Key Pressed");
-  console.log(event.keyCode);
-  if (event.keyCode == 32) {
-    console.log("space pressed");
-    if (player.visual.isPlaying())
-    {
-      console.log("should pause")
-      player.pauseMusic();
-    }
-    else
-    {
-      player.playMusic();
-      console.log("Should play");
-    }
-  }
-})
+document.addEventListener("keydown", play_pause_edit, true);
 
 document.addEventListener("keyup", function(event) {
   if (event.keyCode == 17) {
@@ -177,6 +159,32 @@ document.addEventListener("keyup", function(event) {
     })
   }
 })
+
+function play_pause_edit(event) {
+  console.log("keypress detected");
+  if (event.keyCode == 17 && !isDragEnabled){
+    player.visual.enableDragSelection({id: "test_2_", color: "rgba(255.0, 0.0, 0.0, 0.8)", drag:true, resize: true});
+    console.log("drag selection enabled");
+    isDragEnabled = true;
+  }
+
+  console.log("Key Pressed");
+  console.log(event.keyCode);
+  console.log("regionEdit? " + player.regionEdit);
+  if (event.keyCode == 32 && !player.regionEdit) {
+    console.log("space pressed");
+    if (player.visual.isPlaying())
+    {
+      console.log("should pause")
+      player.pauseMusic();
+    }
+    else
+    {
+      player.playMusic();
+      console.log("Should play");
+    }
+  }
+}
 
 var size = 1;
 var scaleStep = 1;
