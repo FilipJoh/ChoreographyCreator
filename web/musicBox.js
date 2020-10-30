@@ -74,7 +74,7 @@ var player = function(){
           region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
           region.update({drag: false, resize: false});
 
-          document.getElementById("waveform").removeChild(input);
+          document.getElementById("annotationDescriptor").removeChild(input);
         }
     })
 
@@ -90,14 +90,14 @@ var player = function(){
           region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
           region.update({drag: false, resize: false});
 
-          document.getElementById("waveform").removeChild(description);
+          document.getElementById("annotationDescriptor").removeChild(description);
         }
     })
 
     if (!document.getElementById('textInput')) {
       console.log("no inputtext found");
-      document.getElementById("waveform").appendChild(input);
-      document.getElementById("waveform").appendChild(description);
+      document.getElementById("annotationDescriptor").appendChild(input);
+      document.getElementById("annotationDescriptor").appendChild(description);
       input.value = region.attributes.label;
       description.value = region.attributes.description;
     }
@@ -107,11 +107,11 @@ var player = function(){
     this.textElem = document.createElement("span")
     this.textElem.appendChild(document.createTextNode(region.attributes.description));
     this.textElem.style.color = "white";
-    document.getElementById("waveform").appendChild(this.textElem);
+    document.getElementById("annotationDescriptor").appendChild(this.textElem);
   });
 
   this.visual.on('region-out', function(region) {
-    document.getElementById("waveform").removeChild(this.textElem);
+    document.getElementById("annotationDescriptor").removeChild(this.textElem);
     this.textElem = null;
   });
 
@@ -166,7 +166,7 @@ function play_pause_edit(event) {
 
   var nodes = document.querySelectorAll('input[type=text]');
   var nodeRefToFind = document.activeElement
-  var foundParagraph = Array.from(nodes).find((node) => node === nodeRefToFind);
+  var  foundParagraph = Array.from(nodes).find((node) => node === nodeRefToFind);
 
   if (event.keyCode == 32 && !foundParagraph) {
     console.log("space pressed");
@@ -214,25 +214,25 @@ stopBtn.addEventListener('click', function() {
 });*/
 
 // Once the user loads a file in the fileinput, the file should be loaded into waveform
-    document.getElementById("fileinput").addEventListener('change', function(e){
-        var file = this.files[0];
+document.getElementById("fileinput").addEventListener('change', function(e){
+    var file = this.files[0];
 
-        if (file) {
-            var reader = new FileReader();
+    if (file) {
+        var reader = new FileReader();
 
-            reader.onload = function (evt) {
-                // Create a Blob providing as first argument a typed array with the file buffer
-                var blob = new window.Blob([new Uint8Array(evt.target.result)]);
+        reader.onload = function (evt) {
+            // Create a Blob providing as first argument a typed array with the file buffer
+            var blob = new window.Blob([new Uint8Array(evt.target.result)]);
 
-                // Load the blob into Wavesurfer
-                player.visual.loadBlob(blob);
-            };
+            // Load the blob into Wavesurfer
+            player.visual.loadBlob(blob);
+        };
 
-            reader.onerror = function (evt) {
-                console.error("An error ocurred reading the file: ", evt);
-            };
+        reader.onerror = function (evt) {
+            console.error("An error ocurred reading the file: ", evt);
+        };
 
-            // Read File as an ArrayBuffer
-            reader.readAsArrayBuffer(file);
-        }
-    }, false);
+        // Read File as an ArrayBuffer
+        reader.readAsArrayBuffer(file);
+    }
+}, false);

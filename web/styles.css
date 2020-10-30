@@ -126,3 +126,15 @@ region.wavesurfer-region:before {
     position: absolute;
     top: 0;
 }
+
+#annotationDescriptor {
+  position: fixed;
+  top: 30%;
+  width: 90%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, 50%);
+  border-color: #8b0000;
+  border-style: solid;
+
+}
