@@ -20,7 +20,6 @@ var player = function(){
   this.playId = null;
   this.pauseTime = null;
   this.textElem = null;
-  this.regionEdit = false;
   this.visual = WaveSurfer.create({
       container: '#waveform',
       scrollParent: true,
@@ -61,7 +60,6 @@ var player = function(){
   // Double clicking on a region opens up a text input
   this.visual.on('region-dblclick', function(region) {
     region.update({drag: true, resize:true})
-    this.regionEdit = true;
     console.log("Generate textform at region: %s", region.id)
     var input = document.createElement("INPUT");
 
@@ -101,10 +99,8 @@ var player = function(){
       document.getElementById("waveform").appendChild(input);
       document.getElementById("waveform").appendChild(description);
       input.value = region.attributes.label;
+      description.value = region.attributes.description;
     }
-
-    this.regionEdit = !(document.getElementById("waveform").childElementCount == 1);
-    console.log(this.regionEdit);
   })
 
   this.visual.on('region-in', function(region) {
@@ -168,10 +164,11 @@ function play_pause_edit(event) {
     isDragEnabled = true;
   }
 
-  console.log("Key Pressed");
-  console.log(event.keyCode);
-  console.log("regionEdit? " + player.regionEdit);
-  if (event.keyCode == 32 && !player.regionEdit) {
+  var nodes = document.querySelectorAll('input[type=text]');
+  var nodeRefToFind = document.activeElement
+  var foundParagraph = Array.from(nodes).find((node) => node === nodeRefToFind);
+
+  if (event.keyCode == 32 && !foundParagraph) {
     console.log("space pressed");
     if (player.visual.isPlaying())
     {
