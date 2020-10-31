@@ -20,8 +20,8 @@ var player = function(){
   this.sound = null;
   this.playId = null;
   this.pauseTime = null;
-  this.textElem = null;
-  this.regionLabel = null;
+  this.descriptionTextId = 'descriptionText';
+  this.regionLabelId = 'regionTitle';
   this.visual = WaveSurfer.create({
       container: '#waveform',
       scrollParent: true,
@@ -67,83 +67,87 @@ var player = function(){
     region.update({drag: true, resize:true})
 
     console.log("Generate textform at region: %s", region.id)
-    var input = document.createElement("INPUT");
 
+    var regionTextCell = document.getElementById("Region_label");
+    var descTextcell = document.getElementById("Description_label");
+
+    var input = document.createElement("INPUT");
     input.setAttribute('type', 'text');
-    input.setAttribute('id', 'textInput');
+    input.setAttribute('id', player.regionLabelId);
     input.addEventListener("keydown", function(event) {
         if(event.keyCode == 13) {
           console.log("pressed enter in textbox!");
 
-          // Add label
+          // Add label and update region
           region.attributes.label = input.value;
-          //region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
           region.update({drag: false, resize: false});
 
-          document.getElementById("Region_label").removeChild(input);
+          create_or_replace_element(regionTextCell, player.regionLabelId, input.value);
           isRenameActive = false;
         }
     })
 
     var description = document.createElement("INPUT");
     description.setAttribute('type', 'text');
-    description.setAttribute('id', 'descInput');
+    description.setAttribute('id', player.descriptionTextId);
     description.addEventListener("keydown", function(event) {
         if(event.keyCode == 13) {
           console.log("pressed enter in 2nd textbox!");
 
-          // Add label
+          // Add label and update region
           region.attributes.description = description.value;
-          //region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
           region.update({drag: false, resize: false});
 
-          document.getElementById("Description_label").removeChild(description);
-          isRenameActive =false;
+          create_or_replace_element(descTextcell, player.descriptionTextId, description.value);
+          isRenameActive = false;
         }
     })
 
-    if (!document.getElementById('textInput')) {
-      console.log("no inputtext found");
+    // handle replace or creation of region name input box
+    var labelAtr = region.attributes.label;
+    if (labelAtr != undefined)
+       input.value = labelAtr;
 
-      if (this.regionLabel) {
-        document.getElementById("Region_label").removeChild(this.regionLabel);
-        this.regionLabel = null;
-      }
-      document.getElementById("Region_label").appendChild(input);
+    if(!document.getElementById(player.regionLabelId)) {
+      console.log("created input-form");
+      regionTextCell.appendChild(input);
+    } else {
+      regionTextCell.replaceChild(input, document.getElementById(player.regionLabelId));
+    }
 
-      if (this.textElem) {
-        document.getElementById("Description_label").removeChild(this.textElem);
-        this.textElem = null;
-      }
-      document.getElementById("Description_label").appendChild(description);
+    // handle replace or creation of description input box
+    descAtr = region.attributes.description;
+    if (descAtr != undefined)
+      description.value = descAtr;
 
-      input.value = region.attributes.label;
-      description.value = region.attributes.description;
+    if(!document.getElementById(player.descriptionTextId)) {
+      console.log("Should append");
+      descTextcell.appendChild(description);
+    } else {
+      descTextcell.replaceChild(description, document.getElementById(player.descriptionTextId));
     }
   })
 
   this.visual.on('region-in', function(region) {
-
     if(document.querySelectorAll('input[type=text]').length==0)
     {
-      this.regionLabel = document.createElement("Span");
-      this.regionLabel.appendChild(document.createTextNode(region.attributes.label));
-      document.getElementById("Region_label").appendChild(this.regionLabel);
+      if (region.attributes.label != undefined)
+      {
+        var parent = document.getElementById("Region_label");
+        create_or_replace_element(parent, player.regionLabelId, region.attributes.label);
+      }
 
-      this.textElem = document.createElement("span");
-      this.textElem.appendChild(document.createTextNode(region.attributes.description));
-      document.getElementById("Description_label").appendChild(this.textElem);
+      if (region.attributes.description != undefined)
+      {
+        var parent = document.getElementById("Description_label");
+        create_or_replace_element(parent, player.descriptionTextId, region.attributes.description);
+      }
     }
   });
 
   this.visual.on('region-out', function(region) {
-    if (this.textElem)
-      document.getElementById("Description_label").removeChild(this.textElem);
-    this.textElem = null;
-
-    if (this.regionLabel)
-      document.getElementById("Region_label").removeChild(this.regionLabel);
-    this.regionLabel = null;
+    document.getElementById("Description_label").removeChild(document.getElementById(player.descriptionTextId));
+    document.getElementById("Region_label").removeChild(document.getElementById(player.regionLabelId));
   });
 
 };
@@ -216,6 +220,22 @@ function isActive(nodeType)
   var nodes = document.querySelectorAll(nodeType);
   var nodeRefToFind = document.activeElement
   return Array.from(nodes).find((node) => node === nodeRefToFind);
+}
+
+function create_or_replace_element(parent, id, text)
+{
+  // Create element, set text and id
+  textElem = document.createElement("Span");
+  textElem.appendChild(document.createTextNode(text));
+  textElem.setAttribute('id', id);
+
+  // Replace or create child to parent
+  if(document.getElementById(id))
+  {
+    parent.replaceChild(textElem, document.getElementById(id));
+  } else {
+    parent.appendChild(textElem);
+  }
 }
 
 var size = 1;
