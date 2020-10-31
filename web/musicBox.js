@@ -146,8 +146,31 @@ var player = function(){
   });
 
   this.visual.on('region-out', function(region) {
-    document.getElementById("Description_label").removeChild(document.getElementById(player.descriptionTextId));
-    document.getElementById("Region_label").removeChild(document.getElementById(player.regionLabelId));
+    if (document.getElementById(player.descriptionTextId))
+      document.getElementById("Description_label").removeChild(document.getElementById(player.descriptionTextId));
+    if (document.getElementById(player.regionLabelId))
+      document.getElementById("Region_label").removeChild(document.getElementById(player.regionLabelId));
+  });
+
+  // update text if user seeks in another region
+  this.visual.on('region-click', function(region)
+  {
+    if (document.getElementById(player.descriptionTextId))
+      document.getElementById("Description_label").removeChild(document.getElementById(player.descriptionTextId));
+    if (document.getElementById(player.regionLabelId))
+      document.getElementById("Region_label").removeChild(document.getElementById(player.regionLabelId));
+
+    if (region.attributes.label != undefined)
+    {
+      var parent = document.getElementById("Region_label");
+      create_or_replace_element(parent, player.regionLabelId, region.attributes.label);
+    }
+
+    if (region.attributes.description != undefined)
+    {
+      var parent = document.getElementById("Description_label");
+      create_or_replace_element(parent, player.descriptionTextId, region.attributes.description);
+    }
   });
 
 };
