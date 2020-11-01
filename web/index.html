@@ -9,8 +9,14 @@
   </head>
   <body>
       <div id="inputHolder">
-        <input type="file" id="fileinput" name="Chose song" />
+        <label for="fileinput" class="custom-file-upload">
+          <p> Select Mp3 </p>
+        </label>
+        <label for="JSONinput" class="custom-file-upload">
+            <p> Select JSON </p>
+        </label>
         <input type="file" id="JSONinput" name="Chose dance"/>
+        <input type="file" id="fileinput" name="Chose song" />
       </div>
       <div id="annotationDescriptor" >
         <div class="text_n_label" id="Region_label">
@@ -28,9 +34,18 @@
           <div class="btn" id="saveBtn"></div>
           <div id="help-tips">
             <p> Hold down ctrl to enable region creation!</p>
+            <p> How to use: </p>
+            <div id = "instructions">
+              <p> 1. Load mp3 of your choice</p>
+              <p> 2: Hold down ctrl and click n' drag to create regions</p>
+              <p> 3: Double click on region to rename label and add description </p>
+              <p> 4: press enterin each text field when edits are done </p>
+              <p> 5: Annotation can be saved to a JSON-file if save icon is pressed </p>
+              <p> 6: Saved JSON can be reloaded with the 'Load JSON btn' </p>
+            </div>
           </div>
       </div>
-      <h1> welcome to ChoreographyCreator </h1>
+      <h1> Welcome to ChoreographyCreator </h1>
     <script src= "./musicBox.js"></script>
   </body>
 </html>
