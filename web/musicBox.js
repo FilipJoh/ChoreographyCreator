@@ -349,6 +349,42 @@ document.getElementById("fileinput").addEventListener('change', function(e){
     }
 }, false);
 
+document.getElementById("JSONinput").addEventListener('change', function(e){
+
+  var file = this.files[0];
+  console.log(file);
+  if (file) {
+    var reader = new FileReader();
+    reader.onload = function (evt) {
+      //console.log(JSON.parse(evt.target.result));
+      var parsedInput = JSON.parse(evt.target.result);
+      console.log(parsedInput);
+      parsedInput.regions.forEach( function(region) {
+        player.visual.addRegion({
+          id: region.id,
+          start: region.start,
+          end: region.end,
+          color: "rgba(255.0, 0.0, 0.0, 0.8)",
+          attributes: {
+            label: region.label,
+            description: region.description
+          }
+        });
+        console.log(region);
+      });
+
+      // Disable drag and scale for all regions
+      Object.keys(player.visual.regions.list).forEach(function (id) {
+        var region = player.visual.regions.list[id];
+        region.color = normalColor;
+        region.update({drag: false, resize: false});
+      })
+
+    }
+    reader.readAsText(file)
+  }
+})
+
 // Storage function
 // Check if it is supported in your browser
 function supports_html5_storage()
