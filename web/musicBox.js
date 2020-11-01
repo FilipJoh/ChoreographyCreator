@@ -219,7 +219,7 @@ player.prototype = {
     var blob = new Blob([JSON.stringify(exportData)], {type: "application/json"});
     var url = URL.createObjectURL(blob);
     var domFile = document.createElement('a');
-    domFile.download = "TestFile.json";
+    domFile.download = (document.getElementById("fileinput").files[0].name).split('.').slice(0, -1).join('.')+"_Choreo.json";
     domFile.href = url;
     domFile.textContent = "Download n stuff"
     domFile.click();
