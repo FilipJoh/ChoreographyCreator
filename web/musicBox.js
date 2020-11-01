@@ -199,7 +199,10 @@ player.prototype = {
     var exportData = {};
     var regions = [];
 
-    exportData.name = "Test"
+    var songName = (document.getElementById("fileinput").files[0].name).split('.').slice(0, -1).join('.');
+
+    exportData.name = songName+"_Choreography";
+    exportData.music = document.getElementById("fileinput").files[0].name;
     exportData.regions = regions;
 
     regList = this.visual.regions.list;
@@ -380,6 +383,16 @@ document.getElementById("JSONinput").addEventListener('change', function(e){
         region.update({drag: false, resize: false});
       })
 
+      // Check if the right music has been reloaded
+      musicFile = document.getElementById("fileinput").files;
+      if (musicFile.length != 0)
+      {
+        loadedMusic = document.getElementById("fileinput").files[0].name;
+        if (loadedMusic != parsedInput.music)
+          alert("Warning: " + loadedMusic + " does not match choreography record: " + parsedInput.music);
+      } else {
+          alert("Please load song: " + parsedInput.music);
+      }
     }
     reader.readAsText(file)
   }
