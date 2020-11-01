@@ -146,9 +146,9 @@ var player = function(){
   });
 
   this.visual.on('region-out', function(region) {
-    if (document.getElementById(player.descriptionTextId))
+    if (document.getElementById(player.descriptionTextId) && region.attributes.description == document.getElementById(player.descriptionTextId).innerText)
       document.getElementById("Description_label").removeChild(document.getElementById(player.descriptionTextId));
-    if (document.getElementById(player.regionLabelId))
+    if (document.getElementById(player.regionLabelId) && region.attributes.label == document.getElementById(player.regionLabelId).innerText)
       document.getElementById("Region_label").removeChild(document.getElementById(player.regionLabelId));
   });
 
@@ -192,6 +192,39 @@ player.prototype = {
     pauseBtn.style.display = 'none'
     playBtn.style.display = 'block'
     this.visual.stop();
+  },
+
+  ExportPlayList: function() {
+    // JSON Object to store
+    var exportData = {};
+    var regions = [];
+
+    exportData.name = "Test"
+    exportData.regions = regions;
+
+    regList = this.visual.regions.list;
+    for (const regItem of Object.entries(regList))
+    {
+      var region = {"id" : regItem[0],
+                    "start": regItem[1].start,
+                    "end": regItem[1].end,
+                    "label": regItem[1].attributes.label,
+                    "description" : regItem[1].attributes.description
+                  };
+      exportData.regions.push(region);
+    }
+    console.log(exportData);
+
+    // Setup download
+    var blob = new Blob([JSON.stringify(exportData)], {type: "application/json"});
+    var url = URL.createObjectURL(blob);
+    var domFile = document.createElement('a');
+    domFile.download = "TestFile.json";
+    domFile.href = url;
+    domFile.textContent = "Download n stuff"
+    domFile.click();
+    console.log(domFile.href);
+    domFile.remove();
   }
 };
 
@@ -287,9 +320,10 @@ pauseBtn.addEventListener('click', function() {
 stopBtn.addEventListener('click', function() {
   player.stopMusic('prev');
 });
-/*nextBtn.addEventListener('click', function() {
-  player.skip('next');
-});*/
+saveBtn.addEventListener('click', function() {
+  console.log("Save n' stuff");
+  player.ExportPlayList();
+});
 
 // Once the user loads a file in the fileinput, the file should be loaded into waveform
 document.getElementById("fileinput").addEventListener('change', function(e){
@@ -314,3 +348,17 @@ document.getElementById("fileinput").addEventListener('change', function(e){
         reader.readAsArrayBuffer(file);
     }
 }, false);
+
+// Storage function
+// Check if it is supported in your browser
+function supports_html5_storage()
+{
+      try
+      {
+        return 'localStorage' in window && window['localStorage'] !== null;
+      }
+      catch (e)
+      {
+        return false;
+      }
+}
