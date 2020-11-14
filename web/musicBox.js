@@ -306,19 +306,23 @@ function create_or_replace_element(parent, id, text)
 
 var size = 1;
 var scaleStep = 1;
-document.addEventListener('wheel',function(event){
+
+// Scroll zoom
+document.getElementById("waveform").addEventListener('wheel',function(event){
     //mouseController.wheel(event);
+    event.preventDefault();
     if (event.deltaY < 0){
       size -= scaleStep;
     }
     else {
       size += scaleStep;
     }
+
+    if (size < 0)
+      size = 0;
     console.log("mouse event triggered %f", size);
     player.visual.zoom(Number(size));
-    return false;
-    //event.preventDefault();
-});
+}, {passive: false});
 
 // Bind our player controls.
 playBtn.addEventListener('click', function() {
