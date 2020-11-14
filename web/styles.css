@@ -30,11 +30,11 @@ p {
 }
 
 .controls{
-  position: absolute;
-  width: 100%;
+  position: static;
+  width: 90%;
   height: 150px;
   display: block;
-  margin: 50px auto;
+  margin: 5px auto;
   background-color: #8b0000;
 }
 .btn {
@@ -72,8 +72,8 @@ p {
 
 
 #help-tips{
-  position: absolute;
-  top: 70%;
+  position: relative;
+  top: 125px;
   width: 100%;
   margin: auto;
   text-align: center;
@@ -81,10 +81,8 @@ p {
 }
 
 #inputHolder {
-  /*text-align: center;
-  outline-color: red;*/
   background-color: #8b0000;
-  position: absolute;
+  position: static;
   display: grid;
   grid-template-columns: auto auto;
   grid-gap:5px;
@@ -136,12 +134,11 @@ p {
 }
 
 #waveform {
-  position: absolute;
-  top: 10%;
+  position: static;
   width: 90%;
-  left: 50%;
-  margin-right: -50%;
-  transform: translate(-50%, 50%);
+  margin-left: 5%;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 region.wavesurfer-region:before {
@@ -151,12 +148,10 @@ region.wavesurfer-region:before {
 }
 
 #annotationDescriptor {
-  position: absolute;
-  top: 30%;
+  position: static;
   width: 90%;
-  left: 50%;
-  margin-right: -50%;
-  transform: translate(-50%, 50%);
+  margin-left: 5%;
+  margin-bottom: 50px;
   border-color: #8b0000;
   border-style: solid;
 
@@ -191,6 +186,7 @@ input[type="file"] {
 
 #instructions
 {
+  margin-left:5%;
   text-align: left;
 }
 
