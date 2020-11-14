@@ -25,7 +25,8 @@ h1 {
 p {
   font-family: Verdana;
   font-size: 20px;
-  color: red
+  color: red;
+  white-space: pre-wrap;
 }
 
 .controls{
@@ -190,10 +191,15 @@ input[type="file"] {
 
 #instructions
 {
-  text-align: left
+  text-align: left;
 }
 
 #regionTitle
+{
+  text-align: left;
+}
+
+#descriptionText
 {
   text-align: left;
 }

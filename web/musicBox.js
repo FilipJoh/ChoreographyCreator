@@ -87,11 +87,13 @@ var player = function(){
         }
     })
 
-    var description = document.createElement("INPUT");
-    description.setAttribute('type', 'text');
+    var description = document.createElement("textarea");
+    //description.setAttribute('type', 'textarea');
     description.setAttribute('id', player.descriptionTextId);
+    //description.setAttribute('rows', 5);
+    //description.setAttribute('cols', 200);
     description.addEventListener("keydown", function(event) {
-        if(event.keyCode == 13) {
+        if(event.keyCode == 13 && !event.shiftKey) {
           console.log("pressed enter in 2nd textbox!");
 
           // Add label and update region
@@ -118,7 +120,11 @@ var player = function(){
     // handle replace or creation of description input box
     descAtr = region.attributes.description;
     if (descAtr != undefined)
+    {
+      newLines = descAtr.split(/\r\n|\r|\n/).length
+      description.setAttribute('rows', newLines)
       description.value = descAtr;
+    }
 
     if(!document.getElementById(player.descriptionTextId)) {
       console.log("Should append");
