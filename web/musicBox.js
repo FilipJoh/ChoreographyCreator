@@ -88,10 +88,7 @@ var player = function(){
     })
 
     var description = document.createElement("textarea");
-    //description.setAttribute('type', 'textarea');
     description.setAttribute('id', player.descriptionTextId);
-    //description.setAttribute('rows', 5);
-    //description.setAttribute('cols', 200);
     description.addEventListener("keydown", function(event) {
         if(event.keyCode == 13 && !event.shiftKey) {
           console.log("pressed enter in 2nd textbox!");
@@ -257,15 +254,17 @@ document.addEventListener("keyup", function(event) {
 
 function play_pause_edit(event) {
   console.log("keypress detected");
+
   if (event.keyCode == 17 && !isDragEnabled){
     player.visual.enableDragSelection({id: "test_2_", color: "rgba(255.0, 0.0, 0.0, 0.8)", drag:true, resize: true});
     console.log("drag selection enabled");
     isDragEnabled = true;
   }
 
-  var foundParagraph = isActive('input[type=text]');
+  var foundParagraph = isActive('input[type=text]') || isActive('textarea');
 
   if (event.keyCode == 32 && !foundParagraph) {
+    event.preventDefault();
     console.log("space pressed");
     if (player.visual.isPlaying())
     {
@@ -290,9 +289,8 @@ function isActive(nodeType)
 function create_or_replace_element(parent, id, text)
 {
   // Create element, set text and id
-  textElem = document.createElement("P");
-  textElem.innerHTML = text;
-  //textElem.appendChild(document.createTextNode(text));
+  textElem = document.createElement("Span");
+  textElem.textContent = text;
   textElem.setAttribute('id', id);
 
   // Replace or create child to parent
@@ -326,16 +324,20 @@ document.getElementById("waveform").addEventListener('wheel',function(event){
 
 // Bind our player controls.
 playBtn.addEventListener('click', function() {
+  event.preventDefault();
   player.playMusic();
 });
 pauseBtn.addEventListener('click', function() {
+  event.preventDefault();
   player.pauseMusic();
 });
 stopBtn.addEventListener('click', function() {
+  event.preventDefault();
   player.stopMusic('prev');
 });
 saveBtn.addEventListener('click', function() {
   console.log("Save n' stuff");
+  event.preventDefault();
   player.ExportPlayList();
 });
 

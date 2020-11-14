@@ -53,23 +53,37 @@ p {
 
 .text_n_label {
   display: grid;
-  grid-template-columns: 200pt auto;
+  grid-template-columns: 90pt auto;
   grid-gap:5px;
   border-color: #8b0000;
   border-bottom-style: solid;
-}
 
-.text_n_label label {
-  font-family: Verdana;
-  font-size: 20px;
-  color: red;
-  text-align: right;
-  margin-block-start: 0em;
-  margin-block-end: 0em;
 }
-
+.text_n_label label { text-align: right; }
 .text_n_label label:after {content: ":";}
 
+span
+{
+  white-space: pre-wrap;
+  text-align: left
+}
+
+input[type="text"]
+{
+    width:90%;
+    font-family: verdana;
+    font-size: 20px;
+    color: red;
+}
+
+textarea
+{
+  width: 90%;
+  /*max-width: 90%;*/
+  font-family: verdana;
+  font-size: 20px;
+  color: red;
+}
 
 #help-tips{
   position: relative;
@@ -154,23 +168,9 @@ region.wavesurfer-region:before {
   margin-bottom: 50px;
   border-color: #8b0000;
   border-style: solid;
-
-}
-
-input[type="text"]
-{
-    width:80%;
-    font-family: verdana;
-    font-size: 20px;
-    color: red;
-}
-
-span
-{
-  width: 80%;
-  font-family: verdana;
-  font-size: 20pt;
-  color: white;
+  font-family: Verdana;
+  font-size: 15pt;
+  color: red;
 }
 
 .custom-file-upload {
@@ -187,15 +187,5 @@ input[type="file"] {
 #instructions
 {
   margin-left:5%;
-  text-align: left;
-}
-
-#regionTitle
-{
-  text-align: left;
-}
-
-#descriptionText
-{
   text-align: left;
 }
