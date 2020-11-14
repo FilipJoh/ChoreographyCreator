@@ -265,7 +265,7 @@ function play_pause_edit(event) {
 
   if (event.keyCode == 32 && !foundParagraph) {
     event.preventDefault();
-    console.log("space pressed");
+    //console.log("space pressed");
     if (player.visual.isPlaying())
     {
       console.log("should pause")
