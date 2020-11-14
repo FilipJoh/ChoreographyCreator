@@ -284,8 +284,9 @@ function isActive(nodeType)
 function create_or_replace_element(parent, id, text)
 {
   // Create element, set text and id
-  textElem = document.createElement("Span");
-  textElem.appendChild(document.createTextNode(text));
+  textElem = document.createElement("P");
+  textElem.innerHTML = text;
+  //textElem.appendChild(document.createTextNode(text));
   textElem.setAttribute('id', id);
 
   // Replace or create child to parent
