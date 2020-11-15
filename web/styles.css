@@ -98,7 +98,7 @@ textarea
   background-color: #8b0000;
   position: static;
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: auto auto auto;
   grid-gap:5px;
   width: 90%;
   height: 50px;
