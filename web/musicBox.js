@@ -180,7 +180,6 @@ var player = function(){
 player.prototype = {
   playMusic: function() {
     this.visual.play();
-
     playBtn.style.display = 'none';
     pauseBtn.style.display = 'block';
   },
@@ -198,32 +197,8 @@ player.prototype = {
   },
 
   ExportPlayList: function() {
-    // JSON Object to store
-    var exportData = {};
-    var regions = [];
-
-    var songName = (document.getElementById("fileinput").files[0].name).split('.').slice(0, -1).join('.');
-
-    exportData.name = songName+"_Choreography";
-    exportData.music = document.getElementById("fileinput").files[0].name;
-    exportData.regions = regions;
-
-    regList = this.visual.regions.list;
-    for (const regItem of Object.entries(regList))
-    {
-      var region = {"id" : regItem[0],
-                    "start": regItem[1].start,
-                    "end": regItem[1].end,
-                    "label": regItem[1].attributes.label,
-                    "description" : regItem[1].attributes.description
-                  };
-      exportData.regions.push(region);
-    }
-    console.log(exportData);
-
-    // Setup download
-    var blob = new Blob([JSON.stringify(exportData)], {type: "application/json"});
-    var url = URL.createObjectURL(blob);
+    var songName = (document.getElementById("fileinput").files[0].name).split('.').slice(0, -1);
+    var url = URL.createObjectURL(regions_to_JSON(songName));
     var domFile = document.createElement('a');
     domFile.download = (document.getElementById("fileinput").files[0].name).split('.').slice(0, -1).join('.')+"_Choreo.json";
     domFile.href = url;
@@ -231,8 +206,43 @@ player.prototype = {
     domFile.click();
     console.log(domFile.href);
     domFile.remove();
+  },
+
+  ZipAndExportPlayList: function() {
+    var songName = (document.getElementById("fileinput").files[0].name).split('.').slice(0, -1);
+    let zip = new JSZip();
+    zip.file(songName+"_Choreo.json", regions_to_JSON(songName));
+    zip.file(document.getElementById("fileinput").files[0].name, songBlob);;
+    zip.generateAsync({type: "blob"}).then(function(content) {
+        saveAs(content, songName+".zip");
+    });
   }
 };
+
+function regions_to_JSON(songName) {
+  var exportData = {};
+  var regions = [];
+
+  exportData.name = songName+"_Choreography";
+  exportData.music = document.getElementById("fileinput").files[0].name;
+  exportData.regions = regions;
+
+  regList = player.visual.regions.list;
+  for (const regItem of Object.entries(regList))
+  {
+    var region = {"id" : regItem[0],
+                  "start": regItem[1].start,
+                  "end": regItem[1].end,
+                  "label": regItem[1].attributes.label,
+                  "description" : regItem[1].attributes.description
+                };
+    exportData.regions.push(region);
+  }
+  console.log(exportData);
+
+  // Setup download
+  return new Blob([JSON.stringify(exportData)], {type: "application/json"});
+}
 
 // actual object creation
 var player = new player();
@@ -338,8 +348,10 @@ stopBtn.addEventListener('click', function() {
 saveBtn.addEventListener('click', function() {
   console.log("Save n' stuff");
   event.preventDefault();
-  player.ExportPlayList();
+  player.ZipAndExportPlayList();
 });
+
+var songBlob;
 
 // Once the user loads a file in the fileinput, the file should be loaded into waveform
 document.getElementById("fileinput").addEventListener('change', function(e){
@@ -351,7 +363,7 @@ document.getElementById("fileinput").addEventListener('change', function(e){
         reader.onload = function (evt) {
             // Create a Blob providing as first argument a typed array with the file buffer
             var blob = new window.Blob([new Uint8Array(evt.target.result)]);
-
+            songBlob = blob;
             // Load the blob into Wavesurfer
             player.visual.loadBlob(blob);
         };
