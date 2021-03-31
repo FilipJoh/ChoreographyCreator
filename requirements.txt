@@ -1,6 +1,6 @@
 prettierfier==1.0.3
 beautifulsoup4==4.8.2
-lxml==4.4.2
+lxml==4.6.3
 kivy==1.11.1
 ffpyplayer==4.3.0
 pydub==0.23.1
