@@ -8,44 +8,73 @@
     <link rel= "stylesheet" href= "./styles.css">
   </head>
   <body>
-      <div id="inputHolder">
-        <label for="fileinput" class="custom-file-upload">
-          <p> Select Mp3 </p>
-        </label>
-        <label for="JSONinput" class="custom-file-upload">
-            <p> Select JSON </p>
-        </label>
-        <input type="file" id="JSONinput" name="Chose dance"/>
-        <input type="file" id="fileinput" name="Chose song" />
+    <h1> Welcome to ChoreographyCreator </h1>
+    <div class="wrapper">
+      <input class="radio" id="one" name="group" type="radio" checked>
+      <input class="radio" id="two" name="group" type="radio">
+      <input class="radio" id="three" name="group" type="radio">
+      <div class="tabs">
+        <label class="tab" id="one-tab" for="one">CSS</label>
+        <label class="tab" id="two-tab" for="two">Skills</label>
+        <label class="tab" id="three-tab" for="three">Prerequisites</label>
       </div>
-      <div id="annotationDescriptor" >
-        <div class="text_n_label" id="Region_label">
-          <label>Region</label>
-        </div>
-        <div class="text_n_label" id="Description_label">
-          <label>Description</label>
-        </div>
-      </div>
-      <div id="waveform"></div>
-      <div class="controls">
-          <div class="btn" id="playBtn"></div>
-          <div class="btn" id="pauseBtn"></div>
-          <div class="btn" id="stopBtn"></div>
-          <div class="btn" id="saveBtn"></div>
-          <div id="help-tips">
-            <p> Hold down ctrl to enable region creation!</p>
-            <p> How to use: </p>
-            <div id = "instructions">
-              <p> 1. Load mp3 of your choice</p>
-              <p> 2: Hold down ctrl and click n' drag to create regions</p>
-              <p> 3: Double click on region to rename label and add description </p>
-              <p> 4: press enterin each text field when edits are done </p>
-              <p> 5: Annotation can be saved to a JSON-file if save icon is pressed </p>
-              <p> 6: Saved JSON can be reloaded with the 'Load JSON btn' </p>
+      <div class="panels">
+        <div class="panel" id="one-panel">
+          <div class="panel-title">Why Learn CSS?</div>
+          <p>Without CSS, every web page would be drab plain text and images that flowed straight down the page. With CSS, you can add color and background images and change the layout of your page — your web pages can feel like works of art!</p>
+
+          <div id="inputHolder">
+            <label for="fileinput" class="custom-file-upload">
+              <p> Select Mp3 </p>
+            </label>
+            <label for="JSONinput" class="custom-file-upload">
+                <p> Select JSON </p>
+            </label>
+            <input type="file" id="JSONinput" name="Chose dance"/>
+            <input type="file" id="fileinput" name="Chose song" />
+          </div>
+          <div id="waveform"></div>
+          <div id="annotationDescriptor" >
+            <div class="text_n_label" id="Region_label">
+              <label>Region</label>
+            </div>
+            <div class="text_n_label" id="Description_label">
+              <label>Description</label>
             </div>
           </div>
+          <div class="controls">
+              <div class="btn" id="playBtn"></div>
+              <div class="btn" id="pauseBtn"></div>
+              <div class="btn" id="stopBtn"></div>
+              <div class="btn" id="saveBtn"></div>
+              <p> Hold down ctrl to enable region creation!</p>
+          </div>
+        </div>
+        <div class="panel" id="two-panel">
+          <div class="panel-title">Take-Away Skills</div>
+          <p>You will learn many aspects of styling web pages! You’ll be able to set up the correct file structure, edit text and colors, and create attractive layouts. With these skills, you’ll be able to customize the appearance of your web pages to suit your every need!</p>
+        </div>
+        <div class="panel" id="three-panel">
+          <div class="panel-title">Note on Prerequisites</div>
+          <p>We recommend that you complete Learn HTML before learning CSS.</p>
+        </div>
       </div>
-      <h1> Welcome to ChoreographyCreator </h1>
+
+      <div id="help-tips">
+        <p> How to use: </p>
+        <div id = "instructions">
+          <p> 1. Load mp3 of your choice</p>
+          <p> 2: Hold down ctrl and click n' drag to create regions</p>
+          <p> 3: Double click on region to rename label and add description </p>
+          <p> 4: press enterin each text field when edits are done </p>
+          <p> 5: Annotation can be saved to a JSON-file if save icon is pressed </p>
+          <p> 6: Saved JSON can be reloaded with the 'Load JSON btn' </p>
+        </div>
+      </div>
+
+    </div>
+
+
     <script src= "./musicBox.js"></script>
   </body>
 </html>

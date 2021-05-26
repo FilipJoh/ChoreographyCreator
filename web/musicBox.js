@@ -13,7 +13,7 @@ var resizeColor = "rgba(0.0, 0.0, 255.0, 0.5)"
 var normalColor = "rgba(255.0, 0.0, 0.0, 0.8)"
 
 
-// function constructor for player, the class containing the howler instance and playback functions
+// function constructor for player, the class containing the wavesurfer instance and playback functions
 var player = function(){
   this.test = 0;
   this.regCounter = 0;

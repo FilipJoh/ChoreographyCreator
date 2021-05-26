@@ -7,6 +7,55 @@ html {
   outline: 0;
 }
 
+.wrapper{
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+}
+.tab{
+  cursor: pointer;
+  padding:10px 20px;
+  margin:0px 2px;
+  background:#000;
+  display:inline-block;
+  color:#fff;
+  border-radius:3px 3px 0px 0px;
+  box-shadow: 0 0.5rem 0.8rem #00000080;
+}
+.panels{
+  background:#838383;
+  box-shadow: 0 2rem 2rem #00000080;
+  min-height:200px;
+  width:90%;
+  /*max-width:500px;*/
+  border-radius:3px;
+  overflow:hidden;
+  padding:20px;
+}
+.panel{
+  display:none;
+  animation: fadein .8s;
+}
+.panel-title{
+  font-size:1.5em;
+  font-weight:bold
+}
+.radio{
+  display:none;
+}
+#one:checked ~ .panels #one-panel,
+#two:checked ~ .panels #two-panel,
+#three:checked ~ .panels #three-panel{
+  display:block
+}
+#one:checked ~ .tabs #one-tab,
+#two:checked ~ .tabs #two-tab,
+#three:checked ~ .tabs #three-tab{
+  background:#838383;
+  color:#000;
+  border-top: 3px solid #000;
+}
+
 
 body {
   background-color: black;
@@ -27,17 +76,18 @@ p {
 }
 
 .controls{
-  position: fixed;
-  width: 90%;
+  position: relative;
+  /*width: 90%;*/
   height: 150px;
   top: 60%;
   display: block;
-  left: 5%;
-  right: 5%;
+  /*left: 5%;
+  right: 5%;*/
   margin: 0 auto;
   background-color: #8b0000;
 }
 .btn {
+  top: 18%;
   display: block;
   position: absolute;
   cursor: pointer;
@@ -82,15 +132,15 @@ p {
   /*text-align: center;
   outline-color: red;*/
   background-color: #8b0000;
-  position: fixed;
+  position: relative;
   display: grid;
   grid-template-columns: auto auto;
   grid-gap:5px;
-  width: 90%;
+  /*width: 90%;*/
   height: 50px;
   top: 10%;
-  left: 5%;
-  right: 5%;
+  /*left: 5%;
+  right: 5%;*/
   margin: 0 auto;
 }
 
@@ -134,12 +184,12 @@ p {
 }
 
 #waveform {
-  position: fixed;
+  position: relative;
   top: 10%;
-  width: 90%;
+  /*width: 90%;
   left: 50%;
   margin-right: -50%;
-  transform: translate(-50%, 50%);
+  transform: translate(-50%, 50%);*/
 }
 
 region.wavesurfer-region:before {
@@ -149,12 +199,12 @@ region.wavesurfer-region:before {
 }
 
 #annotationDescriptor {
-  position: fixed;
+  position: relative;
   top: 30%;
-  width: 90%;
-  left: 50%;
-  margin-right: -50%;
-  transform: translate(-50%, 50%);
+  /*width: 90%;*/
+  /*left: 50%;*/
+  /*margin-right: -50%;*/
+  /*transform: translate(-50%, 50%);*/
   border-color: #8b0000;
   border-style: solid;
 
@@ -189,5 +239,6 @@ input[type="file"] {
 
 #instructions
 {
-  text-align: left
+  position: fixed;
+  text-align: left;
 }
