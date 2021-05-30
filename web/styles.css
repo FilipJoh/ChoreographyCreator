@@ -17,14 +17,14 @@ html {
   cursor: pointer;
   padding:10px 20px;
   margin:0px 2px;
-  background:#000;
+  background:#282828;
   display:inline-block;
   color:#fff;
   border-radius:3px 3px 0px 0px;
   box-shadow: 0 0.5rem 0.8rem #00000080;
 }
 .panels{
-  background:#838383;
+  background:	#383838;
   box-shadow: 0 2rem 2rem #00000080;
   min-height:200px;
   width:90%;
@@ -152,11 +152,8 @@ textarea
   display: grid;
   grid-template-columns: auto auto auto;
   grid-gap:5px;
-  /*width: 90%;*/
   height: 50px;
   top: 10%;
-  /*left: 5%;
-  right: 5%;*/
   margin: 0 auto;
 }
 
