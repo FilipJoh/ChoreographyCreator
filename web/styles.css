@@ -248,3 +248,17 @@ input[type="file"] {
   margin-left:5%;
   text-align: left;
 }
+
+#plHolder {
+  position: relative;
+  display: block;
+  text-align: left;
+  width: 60%;
+  margin: auto;
+  background: #696969;
+}
+
+.container
+{
+  position: relative;
+}

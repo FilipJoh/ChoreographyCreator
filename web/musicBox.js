@@ -390,6 +390,11 @@ document.getElementById("Choreoinput").addEventListener('change', function(f) {
     };
     zipFileReader.readAsArrayBuffer(zipFile);
   }
+
+
+  // check selected tab
+  //GeneratePlaylist(f)
+
 }, false);
 
 // Once the user loads a file in the fileinput, the file should be loaded into waveform
@@ -469,6 +474,37 @@ function loadJSONdata(data, checkMusic) {
         alert("Please load song: " + parsedInput.music);
     }
   }
+
+  GeneratePlaylist();
+}
+
+function GeneratePlaylist() {
+
+  var playlistOptions = document.createElement('div');
+  playlistOptions.setAttribute('id','plHolder')
+
+
+  Object.keys(player.visual.regions.list).forEach(function (id) {
+    var region = player.visual.regions.list[id];
+    var chkbox = document.createElement('input');
+    chkbox.setAttribute('type', 'checkbox');
+    chkbox.setAttribute('id', id);
+    chkbox.setAttribute('value', false);
+    chkbox.setAttribute('name', region.attributes.label)
+
+    var lbl = document.createElement('label');  // CREATE LABEL.
+    lbl.setAttribute('for', 'prodName' + id);
+    lbl.appendChild(document.createTextNode(region.attributes.label));
+
+    var container = document.createElement('div');
+    container.setAttribute('type', 'segment');
+    container.appendChild(chkbox);
+    container.appendChild(lbl);
+
+
+    playlistOptions.appendChild(container);
+  })
+  document.getElementById("two-panel").appendChild(playlistOptions);
 }
 
 // Storage function
