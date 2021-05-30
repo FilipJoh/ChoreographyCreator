@@ -5,6 +5,8 @@
     <title>ChoreographyCreator_v.0.0.1</title>
     <script src="https://unpkg.com/wavesurfer.js"></script>
     <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"></script>
+    <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
+    <script src="https://unpkg.com/file-saver/dist/FileSaver.min.js"></script>
     <link rel= "stylesheet" href= "./styles.css">
   </head>
   <body>
@@ -30,8 +32,12 @@
             <label for="JSONinput" class="custom-file-upload">
                 <p> Select JSON </p>
             </label>
+            <label for="Choreoinput" class="custom-file-upload">
+              <p> Select Choreography </p>
+            </label>
             <input type="file" id="JSONinput" name="Chose dance"/>
             <input type="file" id="fileinput" name="Chose song" />
+            <input type="file" id="Choreoinput">
           </div>
           <div id="waveform"></div>
           <div id="annotationDescriptor" >

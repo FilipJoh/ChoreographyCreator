@@ -5,6 +5,7 @@ html {
   padding: 0;
   margin: 0;
   outline: 0;
+  overflow-y: scroll;
 }
 
 .wrapper{
@@ -62,6 +63,7 @@ body {
   width: 100%;
   height: 100%;
   text-align: center;
+  overflow-y: : scroll;
 }
 
 h1 {
@@ -72,14 +74,14 @@ h1 {
 p {
   font-family: Verdana;
   font-size: 20px;
-  color: red
+  color: red;
+  white-space: pre-wrap;
 }
 
 .controls{
   position: relative;
   /*width: 90%;*/
   height: 150px;
-  top: 60%;
   display: block;
   /*left: 5%;
   right: 5%;*/
@@ -103,25 +105,41 @@ p {
 
 .text_n_label {
   display: grid;
-  grid-template-columns: 200pt auto;
+  grid-template-columns: 90pt auto;
   grid-gap:5px;
   border-color: #8b0000;
   border-bottom-style: solid;
-}
 
-.text_n_label label {
-  font-family: Verdana;
-  font-size: 20px;
-  color: red;
-  text-align: right;
 }
-
+.text_n_label label { text-align: right; }
 .text_n_label label:after {content: ":";}
 
+span
+{
+  white-space: pre-wrap;
+  text-align: left
+}
+
+input[type="text"]
+{
+    width:90%;
+    font-family: verdana;
+    font-size: 20px;
+    color: red;
+}
+
+textarea
+{
+  width: 90%;
+  /*max-width: 90%;*/
+  font-family: verdana;
+  font-size: 20px;
+  color: red;
+}
 
 #help-tips{
-  position: absolute;
-  top: 70%;
+  position: relative;
+  top: 125px;
   width: 100%;
   margin: auto;
   text-align: center;
@@ -129,12 +147,10 @@ p {
 }
 
 #inputHolder {
-  /*text-align: center;
-  outline-color: red;*/
   background-color: #8b0000;
   position: relative;
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: auto auto auto;
   grid-gap:5px;
   /*width: 90%;*/
   height: 50px;
@@ -196,6 +212,11 @@ region.wavesurfer-region:before {
     content: attr(data-region-label);
     position: absolute;
     top: 0;
+    left: 0;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid blue;
 }
 
 #annotationDescriptor {
@@ -207,23 +228,9 @@ region.wavesurfer-region:before {
   /*transform: translate(-50%, 50%);*/
   border-color: #8b0000;
   border-style: solid;
-
-}
-
-input[type="text"]
-{
-    width:80%;
-    font-family: verdana;
-    font-size: 20px;
-    color: red;
-}
-
-span
-{
-  width: 80%;
-  font-family: verdana;
-  font-size: 20pt;
-  color: white;
+  font-family: Verdana;
+  font-size: 15pt;
+  color: red;
 }
 
 .custom-file-upload {
@@ -239,6 +246,8 @@ input[type="file"] {
 
 #instructions
 {
+
   position: fixed;
+  margin-left:5%;
   text-align: left;
 }
