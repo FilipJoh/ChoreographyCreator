@@ -480,8 +480,9 @@ function loadJSONdata(data, checkMusic) {
 
 function GeneratePlaylist() {
 
-  var playlistOptions = document.createElement('div');
-  playlistOptions.setAttribute('id','plHolder')
+  var playlistOptions = document.getElementById('plHolder')
+  //document.createElement('div');
+  //playlistOptions.setAttribute('id','plHolder')
 
 
   Object.keys(player.visual.regions.list).forEach(function (id) {
@@ -504,7 +505,7 @@ function GeneratePlaylist() {
 
     playlistOptions.appendChild(container);
   })
-  document.getElementById("two-panel").appendChild(playlistOptions);
+  //document.getElementById("two-panel").appendChild(playlistOptions);
 }
 
 // Storage function
