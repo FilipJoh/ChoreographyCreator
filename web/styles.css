@@ -137,14 +137,14 @@ textarea
   color: red;
 }
 
-#help-tips{
+/*#help-tips{
   position: relative;
   top: 125px;
   width: 100%;
   margin: auto;
   text-align: center;
-  display: block
-}
+  display: block;
+}*/
 
 #inputHolder {
   background-color: #8b0000;
@@ -243,8 +243,7 @@ input[type="file"] {
 
 #instructions
 {
-
-  position: fixed;
+  position: relative;
   margin-left:5%;
   text-align: left;
 }

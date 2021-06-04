@@ -181,9 +181,15 @@ var player = function(){
 };
 player.prototype = {
   playMusic: function() {
-    this.visual.play();
-    playBtn.style.display = 'none';
-    pauseBtn.style.display = 'block';
+    console.log("in corrent function");
+    if(document.getElementById('one').checked)
+    {
+      this.visual.play();
+      playBtn.style.display = 'none';
+      pauseBtn.style.display = 'block';
+    } else if (document.getElementById('two').checked) {
+      playSelection();
+    }
   },
 
   pauseMusic: function() {
@@ -478,6 +484,7 @@ function loadJSONdata(data, checkMusic) {
   GeneratePlaylist();
 }
 
+// Generate Checklist for all present regions
 function GeneratePlaylist() {
 
   var playlistOptions = document.getElementById('plHolder')
@@ -507,6 +514,37 @@ function GeneratePlaylist() {
   })
   //document.getElementById("two-panel").appendChild(playlistOptions);
 }
+
+//var regions_to_play;
+
+
+//function selectRegion(id) {
+//  var region = player.visual.regions.list[id];
+//  regions_to_play.append(region)
+//}
+
+//function delselectRegion(id) {
+//  var region = player.visual.regions.list[id];
+//  regions_to_play.remove(region)
+//}
+
+function playSelection () {
+  var checkboxes = document.querySelectorAll("input[type=checkbox][name=settings]");
+  var regions_to_play;
+
+  console.log("testy testy");
+
+  // Collect all the regions to play
+  checkboxes.forEach(function(checkbox) {
+    regions_to_play.append(player.visual.regions.list[checkbox.getAttribute('id')])
+  });
+
+
+  console.log(regions_to_play);
+}
+
+
+
 
 // Storage function
 // Check if it is supported in your browser
