@@ -2,37 +2,11 @@
 
 A very simple tool for creating and learning different Choreographies
 
-#### Setup audioViz dependency
-The AudioViz-folder is a git submodule, which can be initialized by:
-```
-cd audioViz
-git submodule init
-git submodule update
-```
+## Setup
+Locate index.html file inside the web-directory. Open in preferred browser and you are ready to go!
 
-or if cloning the repo:
-```
-git clone --recurse-submodules -j8 https://github.com/FilipJoh/ChoreographyCreator.git
-```
-
-#### Setup using virtualenv (Ubuntu-18.04)
-
-First install some dependencies
-```
-apt install python3-virtualenv ffmpeg
-```
-Create the virtual environment with Python3 as the interpreter
-```
-virtualenv -p python3 venv
-```
-Activate the environment
-```
-source venv/bin/activate
-```
-Python3 and pip3 are now the default calls for `python` and `pip`.
-
-To install the packages required for the choreographer, type
-```
-pip install -r requirements.txt
-```
-To exit the virtual environment, simply type `deactivate` in a terminal
+## App controls
+1. Upload any mp3.
+2. hold down ctrl-key to enable click and drag of regions
+3. double click on region to edit title and descriptions
+4. click save-icon to download a zip-file containing the song and regions. (This can be loaded as a 'choreography' in the interface)
