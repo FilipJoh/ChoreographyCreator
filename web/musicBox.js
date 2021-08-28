@@ -443,7 +443,6 @@ function loadJSON(evt) {
 }
 
 function loadJSONdata(data, checkMusic) {
-  //console.log(JSON.parse(evt.target.result));
   var parsedInput = JSON.parse(data);
   console.log(parsedInput);
   parsedInput.regions.forEach( function(region) {
@@ -528,18 +527,19 @@ function playSelection () {
   // Go through list of regions and play in chronologic order,
   // Utelizes audioprocess event
   let curr = regions_to_play.shift();
-  player.visual.on('audioprocess', time => {
-    if (time > curr.end && regions_to_play.length > 0) {
-      curr = regions_to_play.shift()
-      player.visual.play(curr.start);
-    } else if (time > curr.end && regions_to_play.length === 0) {
-      player.visual.stop();
-    }
-  })
+  player.visual.on('audioprocess', /*playListMode.bind(this, curr, regions_to_play)time => {*/
+    function playListMode(time) {
+      if (time > curr.end && regions_to_play.length > 0) {
+        curr = regions_to_play.shift()
+        player.visual.play(curr.start);
+      } else if (time > curr.end && regions_to_play.length === 0) {
+        player.visual.stop();
+        player.visual.un('audioprocess', playListMode)
+      }
+    })
 
   player.visual.play(curr.start)
 }
-
 
 // Storage function
 // Check if it is supported in your browser
