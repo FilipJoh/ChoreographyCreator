@@ -488,9 +488,6 @@ function loadJSONdata(data, checkMusic) {
 function GeneratePlaylist() {
 
   var playlistOptions = document.getElementById('plHolder')
-  //document.createElement('div');
-  //playlistOptions.setAttribute('id','plHolder')
-
 
   Object.keys(player.visual.regions.list).forEach(function (id) {
     var region = player.visual.regions.list[id];
@@ -500,7 +497,7 @@ function GeneratePlaylist() {
     chkbox.setAttribute('value', false);
     chkbox.setAttribute('name', region.attributes.label)
 
-    var lbl = document.createElement('label');  // CREATE LABEL.
+    var lbl = document.createElement('label');
     lbl.setAttribute('for', 'prodName' + id);
     lbl.appendChild(document.createTextNode(region.attributes.label));
 
@@ -509,41 +506,39 @@ function GeneratePlaylist() {
     container.appendChild(chkbox);
     container.appendChild(lbl);
 
-
     playlistOptions.appendChild(container);
   })
-  //document.getElementById("two-panel").appendChild(playlistOptions);
 }
 
-//var regions_to_play;
-
-
-//function selectRegion(id) {
-//  var region = player.visual.regions.list[id];
-//  regions_to_play.append(region)
-//}
-
-//function delselectRegion(id) {
-//  var region = player.visual.regions.list[id];
-//  regions_to_play.remove(region)
-//}
-
 function playSelection () {
-  var checkboxes = document.querySelectorAll("input[type=checkbox][name=settings]");
-  var regions_to_play;
+  var checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
+  var regions_to_play = [];
 
   console.log("testy testy");
+  console.log(checkboxes);
 
   // Collect all the regions to play
   checkboxes.forEach(function(checkbox) {
-    regions_to_play.append(player.visual.regions.list[checkbox.getAttribute('id')])
+    console.log("Adding id: "+checkbox.getAttribute('id'));
+    var reg = player.visual.regions.list[checkbox.getAttribute('id')];
+    console.log(reg);
+    regions_to_play.push(reg);
   });
 
+  // Go through list of regions and play in chronologic order,
+  // Utelizes audioprocess event
+  let curr = regions_to_play.shift();
+  player.visual.on('audioprocess', time => {
+    if (time > curr.end && regions_to_play.length > 0) {
+      curr = regions_to_play.shift()
+      player.visual.play(curr.start);
+    } else if (time > curr.end && regions_to_play.length === 0) {
+      player.visual.stop();
+    }
+  })
 
-  console.log(regions_to_play);
+  player.visual.play(curr.start)
 }
-
-
 
 
 // Storage function
