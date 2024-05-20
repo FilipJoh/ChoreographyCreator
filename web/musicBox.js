@@ -423,9 +423,11 @@ document.getElementById("fileinput").addEventListener('change', function(e) {
 
 function loadMusic (evt) {
   var blob = new window.Blob([new Uint8Array(evt.target.result)]);
-  songBlob = blob;
+  //var song = new Audio(evt.target.name);
+  
   // Load the blob into Wavesurfer
   player.visual.loadBlob(blob);
+  //player.visual.load(song);
 }
 
 document.getElementById("JSONinput").addEventListener('change', function(e) {
@@ -529,17 +531,19 @@ function GeneratePlaylist() {
 //}
 
 function playSelection () {
-  var checkboxes = document.querySelectorAll("input[type=checkbox][name=settings]");
-  var regions_to_play;
+  var checkboxes = document.querySelectorAll("input[type=checkbox]");
+  var regions_to_play = new Array();;
 
   console.log("testy testy");
 
   // Collect all the regions to play
   checkboxes.forEach(function(checkbox) {
-    regions_to_play.append(player.visual.regions.list[checkbox.getAttribute('id')])
+	console.log("In For each")
+    regions_to_play.push(player.visual.regions.list[checkbox.getAttribute('id')])
+	console.log(checkbox.getAttribute('id'))
   });
 
-
+  console.log(checkboxes);
   console.log(regions_to_play);
 }
 
