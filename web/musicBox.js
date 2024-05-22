@@ -220,7 +220,8 @@ player.prototype = {
     var songName = (mp3_fileName).split('.').slice(0, -1);
     let zip = new JSZip();
     zip.file(songName+"_Choreo.json", regions_to_JSON(songName));
-    zip.file(mp3_fileName, songBlob);;
+	
+    zip.file(mp3_fileName, songBlob, {binary:true});
     zip.generateAsync({type: "blob"}).then(function(content) {
         saveAs(content, songName+".zip");
     });
@@ -345,14 +346,17 @@ playBtn.addEventListener('click', function() {
   event.preventDefault();
   player.playMusic();
 });
+
 pauseBtn.addEventListener('click', function() {
   event.preventDefault();
   player.pauseMusic();
 });
+
 stopBtn.addEventListener('click', function() {
   event.preventDefault();
   player.stopMusic('prev');
 });
+
 saveBtn.addEventListener('click', function() {
   console.log("Save n' stuff");
   event.preventDefault();
@@ -424,6 +428,7 @@ document.getElementById("fileinput").addEventListener('change', function(e) {
 function loadMusic (evt) {
   var blob = new window.Blob([new Uint8Array(evt.target.result)]);
   //var song = new Audio(evt.target.name);
+  songBlob = blob;
   
   // Load the blob into Wavesurfer
   player.visual.loadBlob(blob);
@@ -490,9 +495,6 @@ function loadJSONdata(data, checkMusic) {
 function GeneratePlaylist() {
 
   var playlistOptions = document.getElementById('plHolder')
-  //document.createElement('div');
-  //playlistOptions.setAttribute('id','plHolder')
-
 
   Object.keys(player.visual.regions.list).forEach(function (id) {
     var region = player.visual.regions.list[id];
@@ -502,7 +504,7 @@ function GeneratePlaylist() {
     chkbox.setAttribute('value', false);
     chkbox.setAttribute('name', region.attributes.label)
 
-    var lbl = document.createElement('label');  // CREATE LABEL.
+    var lbl = document.createElement('label');
     lbl.setAttribute('for', 'prodName' + id);
     lbl.appendChild(document.createTextNode(region.attributes.label));
 
@@ -511,43 +513,41 @@ function GeneratePlaylist() {
     container.appendChild(chkbox);
     container.appendChild(lbl);
 
-
     playlistOptions.appendChild(container);
   })
-  //document.getElementById("two-panel").appendChild(playlistOptions);
 }
-
-//var regions_to_play;
-
-
-//function selectRegion(id) {
-//  var region = player.visual.regions.list[id];
-//  regions_to_play.append(region)
-//}
-
-//function delselectRegion(id) {
-//  var region = player.visual.regions.list[id];
-//  regions_to_play.remove(region)
-//}
 
 function playSelection () {
-  var checkboxes = document.querySelectorAll("input[type=checkbox]");
-  var regions_to_play = new Array();;
+
+  var checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
+  var regions_to_play = [];
 
   console.log("testy testy");
+  console.log(checkboxes);
 
   // Collect all the regions to play
-  checkboxes.forEach(function(checkbox) {
-	console.log("In For each")
-    regions_to_play.push(player.visual.regions.list[checkbox.getAttribute('id')])
-	console.log(checkbox.getAttribute('id'))
-  });
+  for (var i = 0; i < checkboxes.length; i++) {
+    //console.log("Adding id: "+check.getAttribute('id'));
+    console.log(checkboxes[i]);
+	var reg = player.visual.regions.list[checkboxes[i].getAttribute('id')];
+    console.log(reg);
+    regions_to_play.push(reg);
+  };
 
-  console.log(checkboxes);
-  console.log(regions_to_play);
+  // Go through list of regions and play in chronologic order,
+  // Utelizes audioprocess event
+  let curr = regions_to_play.shift();
+  player.visual.on('audioprocess', time => {
+    if (time > curr.end && regions_to_play.length > 0) {
+      curr = regions_to_play.shift()
+      player.visual.play(curr.start);
+    } else if (time > curr.end && regions_to_play.length === 0) {
+      player.visual.stop();
+    }
+  })
+
+  player.visual.play(curr.start)
 }
-
-
 
 
 // Storage function

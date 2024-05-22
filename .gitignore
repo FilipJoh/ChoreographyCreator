@@ -11,3 +11,4 @@ src/CCTest.spec
 web/node_modules
 web/offline_assets
 data/*
+src/AudioViz
