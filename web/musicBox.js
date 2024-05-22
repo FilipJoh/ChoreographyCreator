@@ -494,17 +494,21 @@ function loadJSONdata(data, checkMusic) {
 function GeneratePlaylist() {
 
   var playlistOptions = document.getElementById('plHolder')
+  
+  var playlist = Object.values(player.visual.regions.list) // Quickly sort to get coherent order in selection
+  playlist.sort((a, b) => (a.start > b.start ? 1 : -1))
 
-  Object.keys(player.visual.regions.list).forEach(function (id) {
-    var region = player.visual.regions.list[id];
-    var chkbox = document.createElement('input');
+  
+  for(var i = 0 ; i < playlist.length; i++) {
+	var region = playlist[i];
+	var chkbox = document.createElement('input');
     chkbox.setAttribute('type', 'checkbox');
-    chkbox.setAttribute('id', id);
+    chkbox.setAttribute('id', region.id);
     chkbox.setAttribute('value', false);
     chkbox.setAttribute('name', region.attributes.label)
 
     var lbl = document.createElement('label');
-    lbl.setAttribute('for', 'prodName' + id);
+    lbl.setAttribute('for', 'prodName' + region.id);
     lbl.appendChild(document.createTextNode(region.attributes.label));
 
     var container = document.createElement('div');
@@ -512,8 +516,9 @@ function GeneratePlaylist() {
     container.appendChild(chkbox);
     container.appendChild(lbl);
 
-    playlistOptions.appendChild(container);
-  })
+    playlistOptions.appendChild(container); 
+	    
+  }
 }
 
 function playSelection () {
