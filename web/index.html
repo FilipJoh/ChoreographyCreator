@@ -52,7 +52,10 @@
           </label>
           <input type="file" id="Choreoinput">
           <div id=plHolder> </div>
-
+          <label for="PauseTimeSeconds" class="text_n_label">
+            Seconds between repeats:
+            <input type="number" id="PauseTimeSeconds" min="0" max="1000" step="0.01">
+          </label>
         </div>
         <div class="panel" id="three-panel">
           <div class="panel-title">Note on Prerequisites</div>
@@ -62,7 +65,7 @@
               <p> 1. Load mp3 of your choice</p>
               <p> 2: Hold down ctrl and click n' drag to create regions</p>
               <p> 3: Double click on region to rename label and add description </p>
-              <p> 4: press enterin each text field when edits are done </p>
+              <p> 4: Press enter in each text field when edits are done </p>
               <p> 5: Annotation can be saved to a JSON-file if save icon is pressed </p>
               <p> 6: Saved JSON can be reloaded with the 'Load JSON btn' </p>
             </div>

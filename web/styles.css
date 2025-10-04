@@ -218,7 +218,7 @@ input[type="file"] {
 /* WaveSurfer regions - modern dark/red theme */
 .wavesurfer-region {
   border-radius: 6px;                          /* slightly more rounded */
-  border: 2px solid rgba(139, 0, 0, 0.7);     /* dark red border */
+  /*border: 2px solid rgba(139, 0, 0, 0.7);     /* dark red border */
   background-color: rgba(139, 0, 0, 0.6) !important; /* force the fill color */
   position: relative;
   cursor: pointer;
@@ -380,6 +380,28 @@ input[type="file"] {
   color: #EAEAEA;
 }
 
+
+/* Style for the PauseTimeSeconds input */
+#PauseTimeSeconds {
+  background-color: #5e447fed;   /* match your red theme */
+  color: white;                /* text color */
+  border: 2px solid #BB86FC;   /* matching border style */
+  border-radius: 4px;           /* same subtle rounding as other controls */
+  padding: 5px 10px;            /* some internal spacing */
+  font-family: Verdana, sans-serif;
+  font-size: 14pt;
+  width: 100px;                 /* reasonable width for number input */
+  text-align: center;
+  outline: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Hover/focus effect */
+#PauseTimeSeconds:hover,
+#PauseTimeSeconds:focus {
+  background-color: #4c0000;
+  border-color: #8e2727;
+}
 
 .container
 {

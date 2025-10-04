@@ -189,10 +189,11 @@ var player = function(){
   // END OF EVENT HANDLER CODE
   //################################################################
 
-
+  //Make sure the pause btn is disabled at start
+pauseBtn.style.display = 'none';
 player.prototype = {
+  
   playMusic: function() {
-
     if(document.getElementById('one').checked)
     {
       this.visual.play();
@@ -537,38 +538,64 @@ function GeneratePlaylist() {
   }
 }
 
+/*function playSelection() {
+  const checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
+  if (checkboxes.length === 0) return;
+
+  const regions_to_play = Array.from(checkboxes).map(cb => player.visual.regions.list[cb.id])
+                                 .sort((a, b) => a.start - b.start);
+
+  let index = 0;
+
+  function playNext() {
+    if (index >= regions_to_play.length) return;
+    const region = regions_to_play[index];
+    index++;
+    player.visual.once('region-out', () => playNext());
+    player.visual.play(region.start, region.end);
+  }
+
+  playNext();
+}*/
+
 function playSelection () {
 
-  var checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
-  var regions_to_play = [];
+  // Collect pause input
+  let pauseInput = document.getElementById("PauseTimeSeconds");
+  let pauseTime = parseFloat(pauseInput.value) || 0; // in seconds
 
-  console.log("testy testy");
+  // Collect options
+  var checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
   console.log(checkboxes);
 
-  // Collect all the regions to play
-  for (var i = 0; i < checkboxes.length; i++) {
-    //console.log("Adding id: "+check.getAttribute('id'));
-    console.log(checkboxes[i]);
-	var reg = player.visual.regions.list[checkboxes[i].getAttribute('id')];
-    console.log(reg);
-    regions_to_play.push(reg);
-  };
+  let regions_to_play = Array.from(checkboxes).map(cb => player.visual.regions.list[cb.id]);
+  let num_regions = regions_to_play.length
+  let curr = regions_to_play.shift();
 
   // Go through list of regions and play in chronologic order,
-  // Utelizes audioprocess event
-  let curr = regions_to_play.shift();
-  player.visual.on('audioprocess', /*playListMode.bind(this, curr, regions_to_play)time => {*/
-    function playListMode(time) {
-      if (time > curr.end && regions_to_play.length > 0) {
-        curr = regions_to_play.shift()
+  // Utilizes audioprocess event
+  function playListMode(time) {
+    if (time > curr.end) {
+      if (regions_to_play.length > 0) {
+        curr = regions_to_play.shift();
         player.visual.play(curr.start);
-      } else if (time > curr.end && regions_to_play.length === 0) {
+      } else {
+        // End reached: stop and cleanup
         player.visual.stop();
-        player.visual.un('audioprocess', playListMode)
-      }
-    })
+        player.visual.un('audioprocess', playListMode);
 
-  player.visual.play(curr.start)
+        setTimeout(playSelection, pauseTime * 1000);
+      }
+    }
+  }
+
+
+  if (num_regions > 0) {
+    player.visual.on('audioprocess', playListMode);
+    player.visual.play(curr.start)
+  } else {
+    console.log("selection is empty!");
+  }
 }
 
 // Storage function
