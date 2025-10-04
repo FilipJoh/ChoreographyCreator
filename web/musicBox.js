@@ -13,6 +13,7 @@ var isRenameActive = false;
 //var normalColor = "rgba(255.0, 0.0, 0.0, 0.8)"
 var mp3_fileName;
 var songBlob;
+let playTimer = null; // holds any pending timeout
 
 
 // function constructor for player, the class containing the wavesurfer instance and playback functions
@@ -210,12 +211,24 @@ player.prototype = {
     this.visual.pause();
     pauseBtn.style.display = 'none';
     playBtn.style.display = 'block';
+
+    // Cancel any scheduled replays
+    if (playTimer) {
+      clearTimeout(playTimer);
+      playTimer = null;
+    }
   },
 
   stopMusic: function() {
     pauseBtn.style.display = 'none'
     playBtn.style.display = 'block'
     this.visual.stop();
+
+    // Cancel any scheduled replays
+    if (playTimer) {
+      clearTimeout(playTimer);
+      playTimer = null;
+    }
   },
 
   ExportPlayList: function() {
@@ -560,6 +573,12 @@ function GeneratePlaylist() {
 
 function playSelection () {
 
+    // Cancel any existing timer before starting a new run
+  if (playTimer) {
+    clearTimeout(playTimer);
+    playTimer = null;
+  }
+
   // Collect pause input
   let pauseInput = document.getElementById("PauseTimeSeconds");
   let pauseTime = parseFloat(pauseInput.value) || 0; // in seconds
@@ -584,7 +603,11 @@ function playSelection () {
         player.visual.stop();
         player.visual.un('audioprocess', playListMode);
 
-        setTimeout(playSelection, pauseTime * 1000);
+        // Schedule the next repeat
+        playTimer = setTimeout(() => {
+          playSelection(); // replay selection after pause
+          playTimer = null; // clear reference
+        }, pauseTime * 1000);
       }
     }
   }
