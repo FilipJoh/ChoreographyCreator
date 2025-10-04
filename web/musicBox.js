@@ -9,8 +9,8 @@ elms.forEach(function(elm) {
 var regionColor;
 var isDragEnabled = false;
 var isRenameActive = false;
-var resizeColor = "rgba(0.0, 0.0, 255.0, 0.5)"
-var normalColor = "rgba(255.0, 0.0, 0.0, 0.8)"
+//var resizeColor = "rgba(0.0, 0.0, 255.0, 0.5)"
+//var normalColor = "rgba(255.0, 0.0, 0.0, 0.8)"
 var mp3_fileName;
 var songBlob;
 
@@ -47,15 +47,17 @@ var player = function(){
   this.visual.on('region-mouseenter', function(region) {
     console.log("entered region: %s", region.id)
     if(isDragEnabled) {
-      regionColor = region.color;
-      region.color = resizeColor;
+      //regionColor = region.color;
+      //region.color = resizeColor;
+      region.element.classList.add('hovered');
       region.update({drag: true, resize: true});
     }
   })
 
   this.visual.on('region-mouseleave', function(region) {
     if (!isRenameActive)
-      region.color = normalColor;
+      //region.color = normalColor;
+      region.element.classList.remove('hovered');
     if (!isDragEnabled) {
       region.update({drag: false, resize: false});
     }
@@ -276,7 +278,7 @@ document.addEventListener("keyup", function(event) {
     isDragEnabled = false;
     Object.keys(player.visual.regions.list).forEach(function (id) {
       var region = player.visual.regions.list[id];
-      region.color = normalColor;
+      //region.color = normalColor;
       region.update({drag: false, resize: false});
     })
   }
@@ -468,7 +470,7 @@ function loadJSONdata(data, checkMusic) {
       id: region.id,
       start: region.start,
       end: region.end,
-      color: "rgba(255.0, 0.0, 0.0, 0.8)",
+      //color: "rgba(255.0, 0.0, 0.0, 0.8)",
       attributes: {
         label: region.label,
         description: region.description
@@ -480,7 +482,7 @@ function loadJSONdata(data, checkMusic) {
   // Disable drag and scale for all regions
   Object.keys(player.visual.regions.list).forEach(function (id) {
     var region = player.visual.regions.list[id];
-    region.color = normalColor;
+    //region.color = normalColor;
     region.update({drag: false, resize: false});
   })
 
@@ -518,8 +520,12 @@ function GeneratePlaylist() {
     chkbox.setAttribute('value', false);
     chkbox.setAttribute('name', region.attributes.label)
 
+    //chkbox.setAttribute('id', 'chk_' + region.id);
+
+
     var lbl = document.createElement('label');
-    lbl.setAttribute('for', 'prodName' + region.id);
+   //lbl.setAttribute('for', 'prodName' + region.id);
+   // lbl.setAttribute('for', 'chk_' + region.id);
     lbl.appendChild(document.createTextNode(region.attributes.label));
 
     var container = document.createElement('div');
@@ -528,7 +534,6 @@ function GeneratePlaylist() {
     container.appendChild(lbl);
 
     playlistOptions.appendChild(container); 
-	    
   }
 }
 

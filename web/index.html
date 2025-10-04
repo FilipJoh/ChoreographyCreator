@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/jszip/dist/jszip.min.js""></script>
     <script src="https://unpkg.com/file-saver/dist/FileSaver.min.js"></script>
     <link rel= "stylesheet" href= "./styles.css">
+    <link rel= "stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   </head>
   <body>
     <h1> Welcome to ChoreographyCreator </h1>
@@ -26,15 +27,9 @@
           <p>Start by uploading audio as an mp3!</p>
 
           <div id="inputHolder">
-            <label for="fileinput" class="custom-file-upload">
-              <p> Select Mp3 </p>
-            </label>
-            <label for="JSONinput" class="custom-file-upload">
-                <p> Select JSON </p>
-            </label>
-            <label for="Choreoinput" class="custom-file-upload">
-              <p> Select Choreography </p>
-            </label>
+            <label for="fileinput" class="custom-file-upload">Select Mp3</label>
+            <label for="JSONinput" class="custom-file-upload">Select JSON</label>
+            <label for="Choreoinput" class="custom-file-upload">Select Choreography</label>
             <input type="file" id="JSONinput" name="Chose dance"/>
             <input type="file" id="fileinput" name="Chose song" />
             <input type="file" id="Choreoinput">
@@ -48,13 +43,6 @@
               <label>Description</label>
             </div>
           </div>
-          <!--div class="controls">
-              <div class="btn" id="playBtn"></div>
-              <div class="btn" id="pauseBtn"></div>
-              <div class="btn" id="stopBtn"></div>
-              <div class="btn" id="saveBtn"></div>
-              <p> Hold down ctrl to enable region creation!</p>
-          </div--->
         </div>
         <div class="panel" id="two-panel">
           <div class="panel-title">Playlist builder</div>
@@ -81,10 +69,10 @@
           </div>
         </div>
         <div class="controls">
-            <div class="btn" id="playBtn"></div>
-            <div class="btn" id="pauseBtn"></div>
-            <div class="btn" id="stopBtn"></div>
-            <div class="btn" id="saveBtn"></div>
+            <div class="btn" id="playBtn"><i class="fa-solid fa-play"></i></div>
+            <div class="btn" id="pauseBtn"><i class="fa-solid fa-pause"></i></div>
+            <div class="btn" id="stopBtn"><i class="fa-solid fa-stop"></i></div>
+            <div class="btn" id="saveBtn"><i class="fa-solid fa-floppy-disk"></i></div>
             <p> Hold down ctrl to enable region creation!</p>
         </div>
       </div>
