@@ -33,7 +33,10 @@ var player = function(){
   });
 
   that = this
+
+  //################################################################
   // Event capture for region stuff, using anonumous function now
+  //################################################################
   this.visual.on('region-created', function(region) {
     console.log("region created!!");
 
@@ -179,15 +182,23 @@ var player = function(){
   });
 
 };
+
+  //################################################################
+  // END OF EVENT HANDLER CODE
+  //################################################################
+
+
 player.prototype = {
   playMusic: function() {
-    console.log("in corrent function");
+
     if(document.getElementById('one').checked)
     {
       this.visual.play();
       playBtn.style.display = 'none';
       pauseBtn.style.display = 'block';
     } else if (document.getElementById('two').checked) {
+      playBtn.style.display = 'none';
+      pauseBtn.style.display = 'block';
       playSelection();
     }
   },
@@ -275,7 +286,7 @@ function play_pause_edit(event) {
   console.log("keypress detected");
 
   if (event.keyCode == 17 && !isDragEnabled){
-    player.visual.enableDragSelection({id: "test_2_", color: "rgba(255.0, 0.0, 0.0, 0.8)", drag:true, resize: true});
+    player.visual.enableDragSelection({id: "Segment_", color: "rgba(255.0, 0.0, 0.0, 0.8)", drag:true, resize: true});
     console.log("drag selection enabled");
     isDragEnabled = true;
   }
@@ -287,13 +298,13 @@ function play_pause_edit(event) {
     //console.log("space pressed");
     if (player.visual.isPlaying())
     {
-      console.log("should pause")
+      //console.log("should pause")
       player.pauseMusic();
     }
     else
     {
       player.playMusic();
-      console.log("Should play");
+      //console.log("Should play");
     }
   }
 }
@@ -559,12 +570,12 @@ function playSelection () {
 // Check if it is supported in your browser
 function supports_html5_storage()
 {
-      try
-      {
-        return 'localStorage' in window && window['localStorage'] !== null;
-      }
-      catch (e)
-      {
-        return false;
-      }
+  try
+  {
+    return 'localStorage' in window && window['localStorage'] !== null;
+  }
+  catch (e)
+  {
+    return false;
+  }
 }
