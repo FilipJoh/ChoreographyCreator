@@ -390,6 +390,11 @@ saveBtn.addEventListener('click', function() {
   player.ZipAndExportPlayList();
 });
 
+loadExampleBtn.addEventListener('click', function() {
+  console.log('Load example file');
+  loadFromDrive();
+})
+
 document.getElementById("Choreoinput").addEventListener('change', function(f) {
   var zipFile = this.files[0];
   if (zipFile) {
@@ -433,6 +438,64 @@ document.getElementById("Choreoinput").addEventListener('change', function(f) {
   //GeneratePlaylist(f)
 
 }, false);
+
+async function loadFromDrive() {
+  try {
+
+    driveUrl = "https://drive.google.com/file/d/10n2Nk10LYZ3f670xSd1fQZr_8KpL38W6/view?usp=drive_link";
+    // Extract the file ID from the shared link
+    const proxyBase = '/.netlify/functions/fetchZip';
+    const match = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (!match) {
+      console.error("Invalid Google Drive URL");
+      return;
+    }
+    const fileId = match[1];
+    const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+    // Fetch via your proxy
+    const response = await fetch(`${proxyBase}?url=${encodeURIComponent(directUrl)}`);
+    if (!response.ok) throw new Error("Failed to fetch file from Drive");
+    const arrayBuffer = await response.arrayBuffer();
+
+    // Use JSZip as before
+    const unzippedFiles = await JSZip.loadAsync(arrayBuffer);
+
+
+    // Fetch the file as a blob
+    //const response = await fetch(proxy + encodeURIComponent(driveFile));
+    //if (!response.ok) throw new Error("Failed to fetch file from Drive");
+
+    //const arrayBuffer = await response.arrayBuffer();
+
+    // Load the zip file using JSZip
+    //const unzippedFiles = await JSZip.loadAsync(arrayBuffer);
+    console.log("Unzipped files:", unzippedFiles.files);
+
+    for (const relativePath in unzippedFiles.files) {
+      const zipEntry = unzippedFiles.files[relativePath];
+      const ext = relativePath.split('.').pop().toLowerCase();
+
+      if (ext === "mp3") {
+        const fileData = await zipEntry.async("arraybuffer");
+        const blob = new Blob([new Uint8Array(fileData)]);
+        songBlob = blob;
+        player.visual.loadBlob(blob);
+        mp3_fileName = zipEntry.name;
+        console.log("Loaded MP3:", zipEntry.name);
+      } else if (ext === "json") {
+        const fileData = await zipEntry.async("text");
+        loadJSONdata(fileData, false);
+        console.log("Loaded JSON:", zipEntry.name);
+      } else {
+        console.log("Ignoring file:", zipEntry.name);
+      }
+    }
+
+  } catch (err) {
+    console.error("Error loading from Drive:", err);
+  }
+}
 
 // Once the user loads a file in the fileinput, the file should be loaded into waveform
 document.getElementById("fileinput").addEventListener('change', function(e) {
