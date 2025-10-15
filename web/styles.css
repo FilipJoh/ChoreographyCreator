@@ -1,4 +1,29 @@
-html, body {
+/* Color scheme variables */
+/*
+Only supporting dark theme right now
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-color: #fff;
+    --text-color: #222;
+    --border-color: #ccc;
+    --accent-color: #03dac6;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+*/
+:root {
+  --bg-color: #222;
+  --text-color: #eee;
+  --border-color: #2a2a2a;
+  --accent-color: #03dac6;
+}
+/*
+}
+  */
+
+html,
+body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -406,4 +431,35 @@ input[type="file"] {
 .container
 {
   position: relative;
+}
+
+select {
+  /* Base reset */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  padding: 0.6em 2em 0.6em 1em;
+  border-radius: 8px;
+  line-height: 1.2;
+  cursor: pointer;
+
+  /* Add a dropdown arrow */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="%23ffffff" d="M297.4 470.6C309.9 483.1 330.2 483.1 342.7 470.6L534.7 278.6C547.2 266.1 547.2 245.8 534.7 233.3C522.2 220.8 501.9 220.8 489.4 233.3L320 402.7L150.6 233.4C138.1 220.9 117.8 220.9 105.3 233.4C92.8 245.9 92.8 266.2 105.3 278.7L297.3 470.7z"/></svg>');
+  background-position: right 0.75em center, right 0.75em center;
+  background-size: 1em 1em;
+  background-repeat: no-repeat;
+
+  /* Larger touch target */
+  min-height: 2.8em;
+}
+
+/* Focus/hover states */
+select:hover,
+select:focus {
+  outline: none;
+  border-color: var(--accent-color);
 }

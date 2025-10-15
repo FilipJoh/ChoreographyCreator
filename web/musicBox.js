@@ -231,6 +231,10 @@ Player.prototype = {
     }
   },
 
+  setPlaybackRate: function (playbackRate) {
+    this.visual.setPlaybackRate(playbackRate);
+  },
+
   ExportPlayList: function() {
     var songName = (mp3_fileName).split('.').slice(0, -1);
     var url = URL.createObjectURL(regions_to_JSON(songName));
@@ -394,6 +398,11 @@ loadExampleBtn.addEventListener('click', function() {
   console.log('Load example file');
   loadFromDrive();
 })
+
+document.getElementById("playbackRate").addEventListener("change", (event) => {
+  console.log(`Setting playback rate to ${event.target.value}`);
+  player.setPlaybackRate(+event.target.value);
+});
 
 document.getElementById("Choreoinput").addEventListener('change', function(f) {
   var zipFile = this.files[0];
