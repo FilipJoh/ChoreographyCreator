@@ -17,7 +17,7 @@ let playTimer = null; // holds any pending timeout
 
 
 // function constructor for player, the class containing the wavesurfer instance and playback functions
-var player = function(){
+var Player = function(){
   this.test = 0;
   this.regCounter = 0;
   this.sound = null;
@@ -192,7 +192,7 @@ var player = function(){
 
   //Make sure the pause btn is disabled at start
 pauseBtn.style.display = 'none';
-player.prototype = {
+Player.prototype = {
   
   playMusic: function() {
     if(document.getElementById('one').checked)
@@ -281,7 +281,7 @@ function regions_to_JSON(songName) {
 }
 
 // actual object creation
-var player = new player();
+var player = new Player();
 
 document.addEventListener("keydown", play_pause_edit, true);
 
