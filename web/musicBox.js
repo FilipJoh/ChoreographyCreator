@@ -13,7 +13,11 @@ var isRenameActive = false;
 //var normalColor = "rgba(255.0, 0.0, 0.0, 0.8)"
 var mp3_fileName;
 var songBlob;
+
+// Controllers fro region playing
 let playTimer = null; // holds any pending timeout
+let regions_to_play = null; // hold current state of checklist
+let curr = null; //Current region 
 
 
 // function constructor for player, the class containing the wavesurfer instance and playback functions
@@ -197,6 +201,7 @@ Player.prototype = {
   playMusic: function() {
     if(document.getElementById('one').checked)
     {
+      this.visual.un('audioprocess', playListMode)
       this.visual.play();
       playBtn.style.display = 'none';
       pauseBtn.style.display = 'block';
@@ -640,46 +645,44 @@ function playSelection () {
     playTimer = null;
   }
 
-  // Collect pause input
-  let pauseInput = document.getElementById("PauseTimeSeconds");
-  let pauseTime = parseFloat(pauseInput.value) || 0; // in seconds
-
-
-  let regions_to_play = getCheckedRegions();
+  regions_to_play = getCheckedRegions();
   let num_regions = regions_to_play.length
-  let curr = regions_to_play.shift();
+  curr = regions_to_play.shift();
   if (!curr) return console.log("No regions to play");
 
-  // Go through list of regions and play in chronologic order,
+
+  if (num_regions > 0) {
+    player.visual.on('audioprocess', playListMode);
+    player.visual.play(curr.start)
+  } else {
+    console.log("selection is empty!");
+  }
+}
+
+
+// Go through list of regions and play in chronologic order,
   // Utilizes audioprocess event
   function playListMode(time) {
-
-    //console.log("Currently playing:")
-    //console.log(curr)
-    //console.log("left in list :" + regions_to_play.length)
 
     if (time > curr.end) {
       // re-fetch current playlist dynamically each time
       regions_to_play = getCheckedRegions().filter(r => r.start > curr.start);
 
-      /*console.log("Current schedule")
-      for (i = 0; i < regions_to_play.length; i++) {
-        console.log(regions_to_play[i])
-      }
-      console.log("#################")*/
-
       if (regions_to_play.length > 0) {
+
+        // Make sure that we are on the correct 'next region for playback'
         if (curr != regions_to_play[0]) {
           curr = regions_to_play.shift();
-          /*console.log("Shifted new curr:")
-          console.log(curr)
-          console.log("End Curr. Regions left in list: " + regions_to_play.length)*/
         }
         player.visual.play(curr.start);
       } else {
         // End reached: stop and cleanup
         player.visual.stop();
         player.visual.un('audioprocess', playListMode);
+
+        // Collect pause input
+        let pauseInput = document.getElementById("PauseTimeSeconds");
+        let pauseTime = parseFloat(pauseInput.value) || 0; // in seconds
 
         // Schedule the next repeat
         playTimer = setTimeout(() => {
@@ -690,15 +693,6 @@ function playSelection () {
       }
     }
   }
-
-
-  if (num_regions > 0) {
-    player.visual.on('audioprocess', playListMode);
-    player.visual.play(curr.start)
-  } else {
-    console.log("selection is empty!");
-  }
-}
 
 // Storage function
 // Check if it is supported in your browser
