@@ -614,25 +614,14 @@ function GeneratePlaylist() {
   }
 }
 
-/*function playSelection() {
+function getCheckedRegions() {
   const checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
-  if (checkboxes.length === 0) return;
-
-  const regions_to_play = Array.from(checkboxes).map(cb => player.visual.regions.list[cb.id])
-                                 .sort((a, b) => a.start - b.start);
-
-  let index = 0;
-
-  function playNext() {
-    if (index >= regions_to_play.length) return;
-    const region = regions_to_play[index];
-    index++;
-    player.visual.once('region-out', () => playNext());
-    player.visual.play(region.start, region.end);
-  }
-
-  playNext();
-}*/
+  const regions = Array.from(checkboxes)
+    .map(cb => player.visual.regions.list[cb.id])
+    .filter(Boolean)
+    .sort((a, b) => a.start - b.start);
+  return regions;
+}
 
 function playSelection () {
 
@@ -646,18 +635,19 @@ function playSelection () {
   let pauseInput = document.getElementById("PauseTimeSeconds");
   let pauseTime = parseFloat(pauseInput.value) || 0; // in seconds
 
-  // Collect options
-  var checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
-  console.log(checkboxes);
 
-  let regions_to_play = Array.from(checkboxes).map(cb => player.visual.regions.list[cb.id]);
+  let regions_to_play = getCheckedRegions();
   let num_regions = regions_to_play.length
   let curr = regions_to_play.shift();
+  if (!curr) return console.log("No regions to play");
 
   // Go through list of regions and play in chronologic order,
   // Utilizes audioprocess event
   function playListMode(time) {
     if (time > curr.end) {
+      // re-fetch current playlist dynamically each time
+      regions_to_play = getCheckedRegions().filter(r => r.start >= curr.end - 0.01);
+
       if (regions_to_play.length > 0) {
         curr = regions_to_play.shift();
         player.visual.play(curr.start);
