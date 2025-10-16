@@ -653,12 +653,28 @@ function playSelection () {
   // Go through list of regions and play in chronologic order,
   // Utilizes audioprocess event
   function playListMode(time) {
+
+    //console.log("Currently playing:")
+    //console.log(curr)
+    //console.log("left in list :" + regions_to_play.length)
+
     if (time > curr.end) {
       // re-fetch current playlist dynamically each time
-      regions_to_play = getCheckedRegions().filter(r => r.start >= curr.end - 0.01);
+      regions_to_play = getCheckedRegions().filter(r => r.start > curr.start);
+
+      /*console.log("Current schedule")
+      for (i = 0; i < regions_to_play.length; i++) {
+        console.log(regions_to_play[i])
+      }
+      console.log("#################")*/
 
       if (regions_to_play.length > 0) {
-        curr = regions_to_play.shift();
+        if (curr != regions_to_play[0]) {
+          curr = regions_to_play.shift();
+          /*console.log("Shifted new curr:")
+          console.log(curr)
+          console.log("End Curr. Regions left in list: " + regions_to_play.length)*/
+        }
         player.visual.play(curr.start);
       } else {
         // End reached: stop and cleanup
@@ -667,6 +683,7 @@ function playSelection () {
 
         // Schedule the next repeat
         playTimer = setTimeout(() => {
+          console.log("New schedule")
           playSelection(); // replay selection after pause
           playTimer = null; // clear reference
         }, pauseTime * 1000);
