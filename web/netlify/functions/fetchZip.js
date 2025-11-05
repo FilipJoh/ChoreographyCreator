@@ -11,7 +11,7 @@ export async function handler(event) {
 
   try {
     async function fetchDriveFile(url, depth = 0) {
-      if (depth > 5) throw new Error("Too many redirects or confirm loops");
+      if (depth > 6) throw new Error("Too many redirects or confirm loops");
 
       const res = await fetch(url, { redirect: "manual" });
 
@@ -26,7 +26,7 @@ export async function handler(event) {
       if (contentType.includes("text/html")) {
         const html = await res.text();
 
-        // 🔍 Try multiple patterns for confirm token
+        // --- Try multiple token extraction methods ---
         const tokenPatterns = [
           /confirm=([0-9A-Za-z_-]+)&/g,
           /id=([0-9A-Za-z_-]+)&confirm=([0-9A-Za-z_-]+)/g,
@@ -42,26 +42,36 @@ export async function handler(event) {
           }
         }
 
-        // 🧠 New fallback: look for the "href" link directly
+        // Fallback: extract direct download link from HTML
+        let confirmUrl = null;
         if (!confirmToken) {
-          const altMatch = html.match(/href="(\/uc\?export=download[^"]+)"/);
-          if (altMatch) {
-            const confirmUrl = "https://drive.google.com" + altMatch[1].replace(/&amp;/g, "&");
-            console.log("Following alt confirm link:", confirmUrl);
+          const linkMatch = html.match(/href="(\/uc\?export=download[^"]+)"/);
+          if (linkMatch) {
+            confirmUrl = "https://drive.google.com" + linkMatch[1].replace(/&amp;/g, "&");
+            console.log("Found direct download link:", confirmUrl);
             return fetchDriveFile(confirmUrl, depth + 1);
           }
         }
 
+        // Fallback if token found
         if (confirmToken) {
-          const confirmUrl = `${fileUrl}&confirm=${confirmToken}`;
+          confirmUrl = `${fileUrl}&confirm=${confirmToken}`;
           console.log("Found confirm token:", confirmToken);
           return fetchDriveFile(confirmUrl, depth + 1);
         }
 
-        console.warn("Unable to extract confirm token from Drive page.");
-        throw new Error("Google Drive confirmation page not recognized");
+        // Last resort: try to find any download anchor
+        const genericMatch = html.match(/"(https:\/\/[^"]*?export=download[^"]*)"/);
+        if (genericMatch) {
+          confirmUrl = genericMatch[1].replace(/&amp;/g, "&");
+          console.log("Found generic download link:", confirmUrl);
+          return fetchDriveFile(confirmUrl, depth + 1);
+        }
+
+        throw new Error("Google Drive confirmation page unrecognized — no token or link found.");
       }
 
+      // If binary content
       if (!res.ok) {
         throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
       }
@@ -72,6 +82,7 @@ export async function handler(event) {
 
     const buffer = await fetchDriveFile(fileUrl);
 
+    // Return ZIP file to frontend
     return {
       statusCode: 200,
       headers: {
