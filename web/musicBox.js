@@ -206,9 +206,14 @@ Player.prototype = {
       playBtn.style.display = 'none';
       pauseBtn.style.display = 'block';
     } else if (document.getElementById('two').checked) {
+      let startInput = document.getElementById("startOffsetSeconds");
+      let startTimeOffset = parseFloat(startInput.value) || 0; // in seconds
+
+      console.log("Start offset: " + startTimeOffset);
+
       playBtn.style.display = 'none';
       pauseBtn.style.display = 'block';
-      playSelection();
+      playSelection(startTimeOffset);
     }
   },
 
@@ -637,7 +642,7 @@ function getCheckedRegions() {
   return regions;
 }
 
-function playSelection () {
+function playSelection(startOffset = 0) {
 
     // Cancel any existing timer before starting a new run
   if (playTimer) {
@@ -653,7 +658,9 @@ function playSelection () {
 
   if (num_regions > 0) {
     player.visual.on('audioprocess', playListMode);
-    player.visual.play(curr.start)
+    console.log("Start offset in loop: " + startOffset);
+
+    player.visual.play(curr.start - startOffset)
   } else {
     console.log("selection is empty!");
   }
@@ -684,10 +691,15 @@ function playSelection () {
         let pauseInput = document.getElementById("PauseTimeSeconds");
         let pauseTime = parseFloat(pauseInput.value) || 0; // in seconds
 
+        let startInput = document.getElementById("startOffsetSeconds");
+        let startTimeOffset = parseFloat(startInput.value) || 0; // in seconds
+
         // Schedule the next repeat
         playTimer = setTimeout(() => {
           console.log("New schedule")
-          playSelection(); // replay selection after pause
+
+
+          playSelection(startTimeOffset); // replay selection after pause
           playTimer = null; // clear reference
         }, pauseTime * 1000);
       }
