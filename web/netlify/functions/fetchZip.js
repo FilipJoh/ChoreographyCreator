@@ -1,44 +1,77 @@
 export async function handler(event) {
   const fileUrl = event.queryStringParameters.url;
   if (!fileUrl) {
-    return { statusCode: 400, body: "Missing 'url' parameter" };
+    return {
+      statusCode: 400,
+      body: "Missing 'url' parameter",
+    };
   }
 
+  console.log("Fetching file from:", fileUrl);
+
   try {
-    // Initial fetch
-    let res = await fetch(fileUrl, { redirect: "manual" });
+    // Helper function to fetch and follow Google confirm pages
+    async function fetchDriveFile(url, depth = 0) {
+      if (depth > 3) throw new Error("Too many redirects");
 
-    // Google sometimes returns a redirect or HTML with "confirm=" token
-    if (res.status === 302 || res.headers.get("location")) {
-      const redirectUrl = res.headers.get("location");
-      res = await fetch(redirectUrl);
-    } else if (res.headers.get("content-type")?.includes("text/html")) {
-      const html = await res.text();
-      const confirmMatch = html.match(/confirm=([0-9A-Za-z_]+)&/);
-      if (confirmMatch) {
-        const confirmUrl = `${fileUrl}&confirm=${confirmMatch[1]}`;
-        res = await fetch(confirmUrl);
-      } else {
-        throw new Error("Drive confirmation required but not found");
+      const res = await fetch(url, { redirect: "manual" });
+
+      // If Google returns a redirect header, follow it
+      const location = res.headers.get("location");
+      if (location) {
+        console.log("Following redirect:", location);
+        return fetchDriveFile(location, depth + 1);
       }
+
+      // If content is HTML, check if it's a confirm page
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("text/html")) {
+        const html = await res.text();
+
+        // Match confirm token (Google virus scan page)
+        const confirmMatch = html.match(/confirm=([0-9A-Za-z_]+)&/);
+        if (confirmMatch) {
+          const confirmToken = confirmMatch[1];
+          const confirmUrl = `${fileUrl}&confirm=${confirmToken}`;
+          console.log("Found confirm token:", confirmToken);
+          return fetchDriveFile(confirmUrl, depth + 1);
+        }
+
+        console.warn("Received HTML instead of file:", html.slice(0, 200));
+        throw new Error("Google Drive returned an HTML confirmation page");
+      }
+
+      // If we get here, we have a valid binary response
+      if (!res.ok) {
+        throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
+      }
+
+      const buffer = await res.arrayBuffer();
+      return buffer;
     }
 
-    if (!res.ok) {
-      throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
-    }
+    // --- Fetch actual file data ---
+    const buffer = await fetchDriveFile(fileUrl);
 
-    const buffer = await res.arrayBuffer();
+    // --- Return the zip to client ---
     return {
       statusCode: 200,
       headers: {
         "Content-Type": "application/zip",
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
       },
       body: Buffer.from(buffer).toString("base64"),
       isBase64Encoded: true,
     };
   } catch (err) {
     console.error("Error fetching Google Drive file:", err);
-    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+    return {
+      statusCode: 502,
+      body: JSON.stringify({
+        error: "Failed to fetch file from Drive",
+        details: err.message,
+      }),
+    };
   }
 }
