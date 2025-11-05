@@ -6,7 +6,7 @@ elms.forEach(function(elm) {
   window[elm] = document.getElementById(elm);
 });
 
-var regionColor;
+//var regionColor;
 var isDragEnabled = false;
 var isRenameActive = false;
 //var resizeColor = "rgba(0.0, 0.0, 255.0, 0.5)"
@@ -422,7 +422,7 @@ document.getElementById("Choreoinput").addEventListener('change', function(f) {
           ext = relativePath.split('.').slice(-1).pop()
           console.log("relPath "+relativePath.split('.').slice(-1).pop());
           console.log(zipEntry);
-          if (ext == "mp3") {
+          if (ext != "json") {
             unzippedFiles.files[relativePath].async('arraybuffer').then(function (fileData) {
                // These are your file contents
                console.log('inside of blob');
