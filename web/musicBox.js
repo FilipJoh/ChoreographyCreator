@@ -620,9 +620,12 @@ function GeneratePlaylist() {
 
 
     var lbl = document.createElement('label');
+    lbl.setAttribute('for', chkbox.id);
+    lbl.setAttribute('role', 'button'); 
+    lbl.textContent = region.attributes.label;
    //lbl.setAttribute('for', 'prodName' + region.id);
    // lbl.setAttribute('for', 'chk_' + region.id);
-    lbl.appendChild(document.createTextNode(region.attributes.label));
+   //lbl.appendChild(document.createTextNode(region.attributes.label));
 
     var container = document.createElement('div');
     container.setAttribute('type', 'segment');
@@ -719,3 +722,99 @@ function supports_html5_storage()
     return false;
   }
 }
+
+// Click and drag with checkboxes
+(function() {
+  let isDragging = false;
+  let dragStarted = false;
+  let dragTargetState = false;
+  let startX = 0;
+  let startY = 0;
+  let lastTouched = null;
+
+  const dragThreshold = 5; // pixels before considering it a drag
+
+  function getCheckboxFromEvent(e) {
+    // Allow dragging over checkbox or its label
+    const target = e.target;
+    console.log(target)
+    if (target.tagName === "INPUT" && target.type === "checkbox") {
+      return target;
+    }
+    if (target.tagName === "LABEL") {
+      const forId = target.getAttribute("for");
+      if (forId) return document.getElementById(forId);
+    }
+    return null;
+  }
+
+  function toggleCheckbox(checkbox, state) {
+    if (!checkbox) return;
+    checkbox.checked = state;
+  }
+  
+  function startDrag(e) {
+    const checkbox = getCheckboxFromEvent(e);
+    if (!checkbox) return;
+
+
+    isDragging = true;
+    dragStarted = false; // only true after moving beyond threshold
+    startX = e.clientX || (e.touches && e.touches[0].clientX);
+    startY = e.clientY || (e.touches && e.touches[0].clientY);
+    dragTargetState = !checkbox.checked; // desired state when dragging
+    lastTouched = checkbox;
+
+    e.preventDefault();
+  }
+
+  function duringDrag(e) {
+    if (!isDragging) return;
+
+    const checkbox = getCheckboxFromEvent(e);
+    toggleCheckbox(checkbox, dragTargetState);
+
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+    if (!dragStarted) {
+      // Only start drag if moved enough
+      if (Math.abs(clientX - startX) > dragThreshold || Math.abs(clientY - startY) > dragThreshold) {
+        dragStarted = true;
+      } else {
+        return; // Not a drag yet
+      }
+    }
+
+    // Prevent text selection while dragging
+    e.preventDefault();
+
+    //const checkbox = getCheckboxFromEvent(e);
+    if (!checkbox || checkbox === lastTouched) return;
+
+    // Toggle the checkbox to the dragTargetState
+    toggleCheckbox(checkbox, dragTargetState);
+    lastTouched = checkbox;
+  }
+
+  function endDrag(e) {
+    isDragging = false;
+    dragStarted = false;
+    lastTouched = null;
+  }
+
+
+  const container = document.getElementById("plHolder"); // your checkbox container
+
+  container.addEventListener("mousedown", startDrag);
+  container.addEventListener("mousemove", duringDrag);
+  document.addEventListener("mouseup", endDrag);
+
+  // Touch support
+  container.addEventListener("touchstart", startDrag, { passive: false });
+  container.addEventListener("touchmove", duringDrag, { passive: false });
+  document.addEventListener("touchend", endDrag);
+
+})();
+
+
