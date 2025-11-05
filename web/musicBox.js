@@ -471,6 +471,7 @@ async function loadFromDrive() {
     }
     const fileId = match[1];
     const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    console.log(fileId)
 
     // Fetch via your proxy
     const response = await fetch(`${proxyBase}?url=${encodeURIComponent(directUrl)}`);
