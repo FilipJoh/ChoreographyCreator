@@ -464,14 +464,14 @@ async function loadFromDrive() {
     driveUrl = "https://drive.google.com/file/d/10n2Nk10LYZ3f670xSd1fQZr_8KpL38W6/view?usp=drive_link";
     // Extract the file ID from the shared link
     const proxyBase = '/.netlify/functions/fetchZip';
-    /*const match = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    const match = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
     if (!match) {
       console.error("Invalid Google Drive URL");
       return;
-    }*/
-    const fileId = "10n2Nk10LYZ3f670xSd1fQZr_8KpL38W6";
-    const directUrl = "https://drive.google.com/uc?export=download&id=${fileId}";
-    console.log(fileId)
+    }
+    const fileId = match[1];//"10n2Nk10LYZ3f670xSd1fQZr_8KpL38W6";
+    const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    //console.log(fileId)
 
     // Fetch via your proxy
     const response = await fetch(`${proxyBase}?url=${encodeURIComponent(directUrl)}`);
