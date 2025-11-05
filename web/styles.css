@@ -494,3 +494,16 @@ select:focus {
   outline: none;
   border-color: var(--accent-color);
 }
+
+/* Prevent accidental text selection when clicking buttons */
+button,
+.btn,
+.custom-file-upload,
+label[role="button"],
+.controls * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  cursor: pointer;
+}
