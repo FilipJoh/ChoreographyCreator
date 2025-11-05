@@ -461,7 +461,7 @@ document.getElementById("Choreoinput").addEventListener('change', function(f) {
 async function loadFromDrive() {
   try {
 
-    driveUrl = "https://drive.google.com/file/d/1440YzvTG62C4XzJhcgQ-FgAqz9VYzwBU/view?usp=sharing";
+    driveUrl = "https://drive.google.com/file/d/1440YzvTG62C4XzJhcgQ-FgAqz9VYzwBU/view?usp=drive_link";
     // Extract the file ID from the shared link
     const proxyBase = '/.netlify/functions/fetchZip';
     const match = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
