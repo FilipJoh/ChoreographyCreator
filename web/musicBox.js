@@ -469,9 +469,8 @@ async function loadFromDrive() {
       console.error("Invalid Google Drive URL");
       return;
     }
-    const fileId = match[1];//"10n2Nk10LYZ3f670xSd1fQZr_8KpL38W6";
+    const fileId = match[1];
     const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-    //console.log(fileId)
 
     // Fetch via your proxy
     const response = await fetch(`${proxyBase}?url=${encodeURIComponent(directUrl)}`);
@@ -738,7 +737,6 @@ function supports_html5_storage()
   function getCheckboxFromEvent(e) {
     // Allow dragging over checkbox or its label
     const target = e.target;
-    console.log(target)
     if (target.tagName === "INPUT" && target.type === "checkbox") {
       return target;
     }
