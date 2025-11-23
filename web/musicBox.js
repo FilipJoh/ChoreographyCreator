@@ -49,7 +49,7 @@ var Player = function(){
     let finished = false;
 
     region.color = "rgba(255, 35, 255, 0.5)";
-    region.update({ drag: true, resize: true });
+    region.update({ drag: false, resize: false });
 
     var regionTextCell = document.getElementById("Region_label");
     var descTextcell = document.getElementById("Description_label");
