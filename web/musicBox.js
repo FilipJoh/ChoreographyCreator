@@ -590,8 +590,16 @@ document.getElementById("Choreoinput").addEventListener('change', function(f) {
 
 }, false);
 
-document.getElementById("two-panel").addEventListener('click', function() {
+document.getElementById("two").addEventListener('click', function() {
   console.log("click on tab 2");
+  let playlistOptions = document.getElementById('plHolder');
+  let regionCount = Object.keys(player.visual.regions.list).length;
+  let optionCount = playlistOptions.childElementCount;
+
+  if (optionCount !== regionCount) {
+    playlistOptions.innerHTML = "";
+    GeneratePlaylist();
+  }
 });
 
 async function loadFromDrive() {
