@@ -43,11 +43,13 @@ var Player = function(){
   that = this
 
   function startRename(region) {
+    if (isRenameActive) return;
     isRenameActive = true;
+
+    let finished = false;
+
     region.color = "rgba(255, 35, 255, 0.5)";
     region.update({ drag: true, resize: true });
-
-    console.log("Generate textform at region:", region.id);
 
     var regionTextCell = document.getElementById("Region_label");
     var descTextcell = document.getElementById("Description_label");
@@ -57,17 +59,34 @@ var Player = function(){
     input.type = "text";
     input.id = player.regionLabelId;
 
+    // Define inside so it captures region + input + regionTextCell
+    function finishLabelEdit() {
+      if (finished) return;     // ✅ block duplicates
+        finished = true;
+
+      region.attributes.label = input.value;
+      region.update({ drag: false, resize: false });
+      create_or_replace_element(regionTextCell, player.regionLabelId, input.value);
+      isRenameActive = false;
+    }
+
+    // Desktop Enter
     input.addEventListener("keydown", function(event) {
         if (event.key === "Enter") {
-            region.attributes.label = input.value;
-            region.update({ drag: false, resize: false });
-
-            create_or_replace_element(regionTextCell, player.regionLabelId, input.value);
-            isRenameActive = false;
+            event.preventDefault();
+            finishLabelEdit();
+            input.blur();
         }
     });
 
-    if (region.attributes.label) input.value = region.attributes.label;
+    // Mobile Done / tap outside
+    input.addEventListener("blur", function() {
+        finishLabelEdit();
+    });
+
+    if (region.attributes.label) {
+        input.value = region.attributes.label;
+    }
 
     if (!document.getElementById(player.regionLabelId)) {
         regionTextCell.appendChild(input);
@@ -102,9 +121,16 @@ var Player = function(){
     }
   }
 
+  function finishLabelEdit(region, input) {
+      region.attributes.label = input.value;
+      region.update({ drag: false, resize: false });
+      create_or_replace_element(regionTextCell, player.regionLabelId, input.value);
+      isRenameActive = false;
+  }
 
   function attachLongPress(region) {
     const el = region.element;
+    console.log("Attaching longpress for region: "+ region.id)
 
     el.addEventListener('pointerdown', () => {
         if (isRenameActive) return;
@@ -141,10 +167,9 @@ var Player = function(){
   this.visual.on('region-created', attachLongPress);
 
   this.visual.on('region-mouseenter', function(region) {
-    console.log("entered region: %s", region.id)
+    //console.log("entered region: %s", region.id)
+    isRenameActive = false;
     if(isDragEnabled) {
-      //regionColor = region.color;
-      //region.color = resizeColor;
       region.element.classList.add('hovered');
       region.update({drag: true, resize: true});
     }
@@ -160,7 +185,7 @@ var Player = function(){
     else {
       region.update({});
     }
-    console.log("left region: %s", region.id)
+    //console.log("left region: %s", region.id)
   })
 
   // Double clicking on a region opens up a text input
@@ -371,15 +396,17 @@ function isActive(nodeType)
 
 function create_or_replace_element(parent, id, text)
 {
+  const existing = document.getElementById(id);
+
   // Create element, set text and id
-  textElem = document.createElement("Span");
+  const textElem = document.createElement("Span");
   textElem.textContent = text;
   textElem.setAttribute('id', id);
 
   // Replace or create child to parent
-  if(document.getElementById(id))
+  if(existing)
   {
-    parent.replaceChild(textElem, document.getElementById(id));
+    parent.replaceChild(textElem, existing);
   } else {
     parent.appendChild(textElem);
   }
