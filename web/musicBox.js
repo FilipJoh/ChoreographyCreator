@@ -19,6 +19,9 @@ let playTimer = null; // holds any pending timeout
 let regions_to_play = null; // hold current state of checklist
 let curr = null; //Current region 
 
+// Timers fro touch long-press
+let longPressTimer = null;
+const LONG_PRESS_TIME = 500; // ms
 
 // function constructor for player, the class containing the wavesurfer instance and playback functions
 var Player = function(){
@@ -39,6 +42,91 @@ var Player = function(){
 
   that = this
 
+  function startRename(region) {
+    isRenameActive = true;
+    region.color = "rgba(255, 35, 255, 0.5)";
+    region.update({ drag: true, resize: true });
+
+    console.log("Generate textform at region:", region.id);
+
+    var regionTextCell = document.getElementById("Region_label");
+    var descTextcell = document.getElementById("Description_label");
+
+    // --- INPUT FIELD ---
+    var input = document.createElement("INPUT");
+    input.type = "text";
+    input.id = player.regionLabelId;
+
+    input.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            region.attributes.label = input.value;
+            region.update({ drag: false, resize: false });
+
+            create_or_replace_element(regionTextCell, player.regionLabelId, input.value);
+            isRenameActive = false;
+        }
+    });
+
+    if (region.attributes.label) input.value = region.attributes.label;
+
+    if (!document.getElementById(player.regionLabelId)) {
+        regionTextCell.appendChild(input);
+    } else {
+        regionTextCell.replaceChild(input, document.getElementById(player.regionLabelId));
+    }
+
+    // --- DESCRIPTION FIELD ---
+    var description = document.createElement("textarea");
+    description.id = player.descriptionTextId;
+
+    description.addEventListener("keydown", function(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            region.attributes.description = description.value;
+            region.update({ drag: false, resize: false });
+
+            create_or_replace_element(descTextcell, player.descriptionTextId, description.value);
+            isRenameActive = false;
+        }
+    });
+
+    if (region.attributes.description) {
+        const lines = region.attributes.description.split(/\r\n|\r|\n/).length;
+        description.rows = lines;
+        description.value = region.attributes.description;
+    }
+
+    if (!document.getElementById(player.descriptionTextId)) {
+        descTextcell.appendChild(description);
+    } else {
+        descTextcell.replaceChild(description, document.getElementById(player.descriptionTextId));
+    }
+  }
+
+
+  function attachLongPress(region) {
+    const el = region.element;
+
+    el.addEventListener('pointerdown', () => {
+        if (isRenameActive) return;
+
+        longPressTimer = setTimeout(() => {
+            startRename(region);
+        }, LONG_PRESS_TIME);
+    });
+
+    el.addEventListener('pointerup', () => {
+        clearTimeout(longPressTimer);
+    });
+
+    el.addEventListener('pointermove', () => {
+        clearTimeout(longPressTimer);
+    });
+
+    el.addEventListener('pointerleave', () => {
+        clearTimeout(longPressTimer);
+    });
+  }
+
   //################################################################
   // Event capture for region stuff, using anonumous function now
   //################################################################
@@ -48,6 +136,7 @@ var Player = function(){
     that.regCounter++;
     region.id = region.id.concat((that.regCounter).toString());
   })
+  this.visual.on('region-created', attachLongPress);
 
   this.visual.on('region-mouseenter', function(region) {
     console.log("entered region: %s", region.id)
@@ -73,75 +162,7 @@ var Player = function(){
   })
 
   // Double clicking on a region opens up a text input
-  this.visual.on('region-dblclick', function(region) {
-    isRenameActive = true;
-    region.color =  "rgba(255.0, 35.0, 255.0, 0.5)";
-    region.update({drag: true, resize:true})
-
-    console.log("Generate textform at region: %s", region.id)
-
-    var regionTextCell = document.getElementById("Region_label");
-    var descTextcell = document.getElementById("Description_label");
-
-    var input = document.createElement("INPUT");
-    input.setAttribute('type', 'text');
-    input.setAttribute('id', player.regionLabelId);
-    input.addEventListener("keydown", function(event) {
-        if(event.keyCode == 13) {
-          console.log("pressed enter in textbox!");
-
-          // Add label and update region
-          region.attributes.label = input.value;
-          region.update({drag: false, resize: false});
-
-          create_or_replace_element(regionTextCell, player.regionLabelId, input.value);
-          isRenameActive = false;
-        }
-    })
-
-    var description = document.createElement("textarea");
-    description.setAttribute('id', player.descriptionTextId);
-    description.addEventListener("keydown", function(event) {
-        if(event.keyCode == 13 && !event.shiftKey) {
-          console.log("pressed enter in 2nd textbox!");
-
-          // Add label and update region
-          region.attributes.description = description.value;
-          region.update({drag: false, resize: false});
-
-          create_or_replace_element(descTextcell, player.descriptionTextId, description.value);
-          isRenameActive = false;
-        }
-    })
-
-    // handle replace or creation of region name input box
-    var labelAtr = region.attributes.label;
-    if (labelAtr != undefined)
-       input.value = labelAtr;
-
-    if(!document.getElementById(player.regionLabelId)) {
-      console.log("created input-form");
-      regionTextCell.appendChild(input);
-    } else {
-      regionTextCell.replaceChild(input, document.getElementById(player.regionLabelId));
-    }
-
-    // handle replace or creation of description input box
-    descAtr = region.attributes.description;
-    if (descAtr != undefined)
-    {
-      newLines = descAtr.split(/\r\n|\r|\n/).length
-      description.setAttribute('rows', newLines)
-      description.value = descAtr;
-    }
-
-    if(!document.getElementById(player.descriptionTextId)) {
-      console.log("Should append");
-      descTextcell.appendChild(description);
-    } else {
-      descTextcell.replaceChild(description, document.getElementById(player.descriptionTextId));
-    }
-  })
+  this.visual.on('region-dblclick', startRename);
 
   this.visual.on('region-in', function(region) {
     if(document.querySelectorAll('input[type=text]').length==0)
@@ -190,9 +211,9 @@ var Player = function(){
 
 };
 
-  //################################################################
-  // END OF EVENT HANDLER CODE
-  //################################################################
+//################################################################
+// END OF EVENT HANDLER CODE
+//################################################################
 
   //Make sure the pause btn is disabled at start
 pauseBtn.style.display = 'none';
@@ -408,6 +429,26 @@ loadExampleBtn.addEventListener('click', function() {
   console.log('Load example file');
   loadFromDrive();
 })
+
+document.getElementById("editModeBtn").addEventListener("click", () => {
+  isDragEnabled = !isDragEnabled;
+
+  if (isDragEnabled) {
+    player.visual.enableDragSelection({
+      id: "Segment_",
+      color: "rgba(255, 0, 0, 0.8)",
+      drag: true,
+      resize: true
+    });
+    console.log("drag selection enabled");
+  } else {
+    player.visual.disableDragSelection();
+    console.log("drag selection disabled");
+  }
+  document.getElementById("editModeBtn").classList.toggle("active", isDragEnabled);
+});
+
+
 
 document.getElementById("playbackRate").addEventListener("change", (event) => {
   console.log(`Setting playback rate to ${event.target.value}`);
