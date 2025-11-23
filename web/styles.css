@@ -509,3 +509,10 @@ label[role="button"],
   -ms-user-select: none;
   cursor: pointer;
 }
+
+/* Highlight style for drag-selection */
+.drag-highlight {
+  background: rgba(0, 150, 255, 0.25);
+  border-radius: 4px;
+}
+

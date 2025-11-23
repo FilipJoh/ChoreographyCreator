@@ -762,6 +762,10 @@ function supports_html5_storage()
     startX = e.clientX || (e.touches && e.touches[0].clientX);
     startY = e.clientY || (e.touches && e.touches[0].clientY);
     dragTargetState = !checkbox.checked; // desired state when dragging
+
+    unhighlightAll();
+    highlight(checkbox);
+
     lastTouched = checkbox;
 
     e.preventDefault();
@@ -795,6 +799,9 @@ function supports_html5_storage()
 
     // Toggle the checkbox to the dragTargetState
     toggleCheckbox(checkbox, dragTargetState);
+
+    highlight(checkbox);
+
     lastTouched = checkbox;
   }
 
@@ -802,6 +809,17 @@ function supports_html5_storage()
     isDragging = false;
     dragStarted = false;
     lastTouched = null;
+
+    unhighlightAll();
+  }
+
+  function highlight(checkbox) {
+    checkbox.parentElement.classList.add("drag-highlight");
+  }
+
+  function unhighlightAll() {
+    document.querySelectorAll(".drag-highlight")
+      .forEach(el => el.classList.remove("drag-highlight"));
   }
 
 
