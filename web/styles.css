@@ -428,6 +428,8 @@ input[type="file"] {
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
+  touch-action: none;
+  -ms-touch-action: none;
 }
 
 #plHolder input[type="checkbox"]:checked {

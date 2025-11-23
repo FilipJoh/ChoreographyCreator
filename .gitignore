@@ -12,3 +12,6 @@ web/node_modules
 web/offline_assets
 data/*
 src/AudioViz
+
+# Local Netlify folder
+.netlify

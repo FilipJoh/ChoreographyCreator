@@ -609,8 +609,8 @@ function GeneratePlaylist() {
 
   
   for(var i = 0 ; i < playlist.length; i++) {
-	var region = playlist[i];
-	var chkbox = document.createElement('input');
+	  var region = playlist[i];
+	  var chkbox = document.createElement('input');
     chkbox.setAttribute('type', 'checkbox');
     chkbox.setAttribute('id', region.id);
     chkbox.setAttribute('value', false);
@@ -770,11 +770,13 @@ function supports_html5_storage()
   function duringDrag(e) {
     if (!isDragging) return;
 
-    const checkbox = getCheckboxFromEvent(e);
-    toggleCheckbox(checkbox, dragTargetState);
-
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
     const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+    const elem = document.elementFromPoint(clientX, clientY);
+    const checkbox = getCheckboxFromEvent({ target: elem });
+
+    toggleCheckbox(checkbox, dragTargetState);
 
     if (!dragStarted) {
       // Only start drag if moved enough
