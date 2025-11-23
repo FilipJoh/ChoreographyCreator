@@ -121,12 +121,14 @@ var Player = function(){
     }
   }
 
-  function finishLabelEdit(region, input) {
+  /*function finishLabelEdit(region, input) {
       region.attributes.label = input.value;
       region.update({ drag: false, resize: false });
       create_or_replace_element(regionTextCell, player.regionLabelId, input.value);
       isRenameActive = false;
-  }
+  }*/
+
+  
 
   function attachLongPress(region) {
     const el = region.element;
@@ -156,13 +158,77 @@ var Player = function(){
   //################################################################
   // Event capture for region stuff, using anonumous function now
   //################################################################
+
+  function getNeighborRegions(region, wavesurfer) {
+
+    //console.log("regions:", wavesurfer.regions);
+    //console.log("list:", wavesurfer.regions && wavesurfer.regions.list);
+
+
+    const regions = Object.values(wavesurfer.regions.list)
+        .sort((a, b) => a.start - b.start);
+
+    const index = regions.findIndex(r => r.id === region.id);
+
+    return {
+        prev: regions[index - 1] || null,
+        next: regions[index + 1] || null
+    };
+  }
+
+  function snapRegion(region, wavesurfer) {
+    const { prev, next } = getNeighborRegions(region, wavesurfer);
+
+    // Prevent recursion
+    if (region._snapping) return;
+    region._snapping = true;
+
+    let newStart = region.start;
+    let newEnd = region.end;
+
+    if (prev && newStart < prev.end) {
+        newStart = prev.end;
+    }
+
+    if (next && newEnd > next.start) {
+        newEnd = next.start;
+    }
+
+    // Prevent negative or flipped regions
+    if (newEnd < newStart) {
+        newEnd = newStart;
+    }
+
+    region.update({ start: newStart, end: newEnd });
+
+    region._snapping = false;
+  }
+
+  const ws = this.visual;
+  this.visual.on('region-update-end', function(region) {
+    if (isDragEnabled) {
+        snapRegion(region, ws);
+    }
+  });
+
+  this.visual.on('region-updated', function(region) {
+    if (isDragEnabled) {
+        snapRegion(region, ws);
+    }
+  });
+
   this.visual.on('region-created', function(region) {
     console.log("region created!!");
 
     that.regCounter++;
 
-    if (region.id.length == 0)
+    let test = "Segment_";
+
+    if (region.id == test) {
+      
       region.id = region.id.concat((that.regCounter).toString());
+      console.log(region.id)
+    }
   })
   this.visual.on('region-created', attachLongPress);
 
@@ -361,8 +427,6 @@ document.addEventListener("keyup", function(event) {
 })
 
 function play_pause_edit(event) {
-  console.log("keypress detected");
-
   if (event.keyCode == 17 && !isDragEnabled){
     player.visual.enableDragSelection({id: "Segment_", color: "rgba(255.0, 0.0, 0.0, 0.8)", drag:true, resize: true});
     console.log("drag selection enabled");
@@ -434,23 +498,23 @@ document.getElementById("waveform").addEventListener('wheel',function(event){
 
 // Bind our player controls.
 playBtn.addEventListener('click', function() {
-  event.preventDefault();
+  //event.preventDefault();
   player.playMusic();
 });
 
 pauseBtn.addEventListener('click', function() {
-  event.preventDefault();
+  //event.preventDefault();
   player.pauseMusic();
 });
 
 stopBtn.addEventListener('click', function() {
-  event.preventDefault();
+  //event.preventDefault();
   player.stopMusic('prev');
 });
 
 saveBtn.addEventListener('click', function() {
   console.log("Save n' stuff");
-  event.preventDefault();
+  //event.preventDefault();
   player.ZipAndExportPlayList();
 });
 
@@ -476,8 +540,6 @@ document.getElementById("editModeBtn").addEventListener("click", () => {
   }
   document.getElementById("editModeBtn").classList.toggle("active", isDragEnabled);
 });
-
-
 
 document.getElementById("playbackRate").addEventListener("change", (event) => {
   console.log(`Setting playback rate to ${event.target.value}`);
@@ -527,6 +589,10 @@ document.getElementById("Choreoinput").addEventListener('change', function(f) {
   //GeneratePlaylist(f)
 
 }, false);
+
+document.getElementById("two-panel").addEventListener('click', function() {
+  console.log("click on tab 2");
+});
 
 async function loadFromDrive() {
   try {
