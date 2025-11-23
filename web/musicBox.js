@@ -134,7 +134,9 @@ var Player = function(){
     console.log("region created!!");
 
     that.regCounter++;
-    region.id = region.id.concat((that.regCounter).toString());
+
+    if (region.id.length == 0)
+      region.id = region.id.concat((that.regCounter).toString());
   })
   this.visual.on('region-created', attachLongPress);
 
